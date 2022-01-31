@@ -16,3 +16,5 @@ add_executable(blink ${GLAD_SOURCES} ${BLINK_SOURCES})
 target_include_directories(blink PUBLIC lib/glad/include lib/glm lib/glfw/include)
 
 target_link_libraries(blink glfw ${GLFW_LIBRARIES})
+
+#set_target_properties(blink PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:WINDOWS")
