@@ -30,14 +30,18 @@ void shader::set(const std::string &uniform, const glm::vec4 &value) {
     glUniform4f(get_uniform_location(uniform), value.x, value.y, value.z, value.w);
 }
 
+void shader::set(const std::string &uniform, float value) {
+    glUniform1f(get_uniform_location(uniform), value);
+}
+
+void shader::set(const std::string &uniform, bool value) {
+    glUniform1i(get_uniform_location(uniform), value ? 1 : 0);
+}
+
 void shader::bind() const {
     glUseProgram(program_id);
 }
 
 void shader::unbind() {
     glUseProgram(0);
-}
-
-void shader::set(const std::string &uniform, bool value) {
-    glUniform1i(get_uniform_location(uniform), value ? 1 : 0);
 }

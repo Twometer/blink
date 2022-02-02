@@ -5,6 +5,7 @@
 #include <freetype/freetype.h>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <vector>
+#include <chrono>
 
 #include "shader.hpp"
 #include "shader_src.hpp"
@@ -24,6 +25,13 @@ std::vector<RenderGlyph> render_glyphs{};
 GLuint vao;
 GLuint vbo;
 
+auto startup_time = std::chrono::steady_clock::now();
+
+float the_time() {
+    auto time_elapsed = std::chrono::steady_clock::now() - startup_time;
+    return (float) std::chrono::duration_cast<std::chrono::milliseconds>(time_elapsed).count() / 1000.0f;
+}
+
 void redraw(GLFWwindow *window) {
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
@@ -31,7 +39,7 @@ void redraw(GLFWwindow *window) {
     glViewport(0, 0, w, h);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     basic_shader->set("mvpMatrix", glm::ortho(0.0f, (float) w, (float) h, 0.0f));
-
+    basic_shader->set("time", the_time());
 
     int text_x = 32;
     int text_y = 32;
