@@ -10,7 +10,7 @@ set(HB_SOURCES
         lib/harfbuzz/src/harfbuzz.cc)
 
 set(BLINK_SOURCES
-        src/main.cpp)
+        src/main.cpp src/shader_src.hpp src/loader.cpp src/loader.hpp src/shader.cpp src/shader.hpp)
 
 add_subdirectory(lib/glfw)
 

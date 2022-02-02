@@ -3,6 +3,26 @@
 #include <GLFW/glfw3.h>
 #include <hb.h>
 #include <freetype/freetype.h>
+#include <glm/ext/matrix_clip_space.hpp>
+#include <vector>
+
+#include "shader.hpp"
+#include "shader_src.hpp"
+#include "loader.hpp"
+
+shader *basic_shader;
+
+struct RenderGlyph {
+    GLuint textureId;
+    double x;
+    double y;
+    double w;
+    double h;
+};
+
+std::vector<RenderGlyph> render_glyphs{};
+GLuint vao;
+GLuint vbo;
 
 void redraw(GLFWwindow *window) {
     int w, h;
@@ -10,12 +30,28 @@ void redraw(GLFWwindow *window) {
 
     glViewport(0, 0, w, h);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    basic_shader->set("mvpMatrix", glm::ortho(0.0f, (float) w, (float) h, 0.0f));
+
+
+    int text_x = 32;
+    int text_y = 32;
+
+    for (auto &glyph: render_glyphs) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, glyph.textureId);
+        basic_shader->set("rect", glm::vec4(glyph.x + text_x, glyph.y + text_y, glyph.w, glyph.h));
+        glBindVertexArray(vao);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+    }
+
 
     glfwSwapBuffers(window);
 }
 
 void font_test() {
     auto fontFile = R"(C:\Windows\Fonts\CascadiaCode.ttf)";
+    //auto fontFile = R"(C:\Windows\Fonts\Consola.ttf)";
 
     FT_Library ft;
     if (FT_Init_FreeType(&ft)) {
@@ -28,14 +64,18 @@ void font_test() {
         std::cerr << "Failed to load FT font" << std::endl;
         return;
     }
-    FT_Set_Pixel_Sizes(ftFace, 0, 32);
+
+    FT_Set_Char_Size(ftFace, 36 * 64, 36 * 64, 0, 0);
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     hb_buffer_t *buf;
     buf = hb_buffer_create();
-    hb_buffer_add_utf8(buf, "() => 'hello, world';", -1, 0, -1);
+    hb_buffer_add_utf8(buf, "/* beautiful text rendering */ (a, b) => { a === b }", -1, 0, -1);
+    //hb_buffer_add_utf8(buf, "Beautiful text rendering in OpenGL", -1, 0, -1);
 
     hb_buffer_set_direction(buf, HB_DIRECTION_LTR);
-    hb_buffer_set_script(buf, HB_SCRIPT_JAVANESE);
+    hb_buffer_set_script(buf, HB_SCRIPT_LATIN);
     hb_buffer_set_language(buf, hb_language_from_string("en", -1));
 
     hb_blob_t *blob = hb_blob_create_from_file(fontFile); /* or hb_blob_create_from_file_or_fail() */
@@ -61,7 +101,25 @@ void font_test() {
         } else {
             auto pos_x = (cursor_x + x_offset) / 64.0;
             auto pos_y = (cursor_y + y_offset) / 64.0;
-            std::cout << "Drawing: " << glyphid << " at " << pos_x << "/" << pos_y << std::endl;
+            auto glyph = ftFace->glyph;
+
+            GLuint texture;
+            glGenTextures(1, &texture);
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, glyph->bitmap.width, glyph->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE,
+                         glyph->bitmap.buffer);
+            // Set texture options
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            auto horizontalOffset = glyph->metrics.horiBearingX / 64;
+            auto verticalOffset = glyph->metrics.horiBearingY / 64;
+
+            render_glyphs.push_back({texture, pos_x + horizontalOffset, pos_y - verticalOffset + 32,
+                                     (double) glyph->bitmap.width,
+                                     (double) glyph->bitmap.rows});
         }
         cursor_x += x_advance;
         cursor_y += y_advance;
@@ -71,6 +129,28 @@ void font_test() {
     hb_font_destroy(font);
     hb_face_destroy(face);
     hb_blob_destroy(blob);
+
+    GLfloat vertexData[6][4] = {
+            {0, 0, 0.0, 0.0},
+            {0, 1, 0.0, 1.0},
+            {1, 1, 1.0, 1.0},
+
+            {0, 0, 0.0, 0.0},
+            {1, 1, 1.0, 1.0},
+            {1, 0, 1.0, 0.0}
+    };
+
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+
+    glBindVertexArray(vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, vertexData, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+    glBindVertexArray(0);
 }
 
 int main() {
@@ -85,7 +165,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_SAMPLES, 8);
 
-    auto window = glfwCreateWindow(1024, 768, "Blink Editor", nullptr, nullptr);
+    auto window = glfwCreateWindow(1024, 768, "Blink 0.1.0", nullptr, nullptr);
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
 
@@ -97,8 +177,12 @@ int main() {
 
     glfwSetWindowRefreshCallback(window, redraw);
 
+    basic_shader = loader::load_shader(SHADER_BASIC_VERT, SHADER_BASIC_FRAG);
+    basic_shader->bind();
     font_test();
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glClearColor(26.0 / 255.0, 27.0 / 255.0, 38.0 / 255.0, 1.0);
     while (!glfwWindowShouldClose(window)) {
         redraw(window);
