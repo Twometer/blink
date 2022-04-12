@@ -73,14 +73,14 @@ void font_test() {
         return;
     }
 
-    FT_Set_Char_Size(ftFace, 36 * 64, 36 * 64, 0, 0);
+    const int font_size = 16;
+    FT_Set_Char_Size(ftFace, font_size * 64, font_size * 64, 0, 0);
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     hb_buffer_t *buf;
     buf = hb_buffer_create();
-    hb_buffer_add_utf8(buf, "/* beautiful text rendering */ (a, b) => { a === b }", -1, 0, -1);
-    //hb_buffer_add_utf8(buf, "Beautiful text rendering in OpenGL", -1, 0, -1);
+    hb_buffer_add_utf8(buf, "/* beautiful text rendering */ (a, b) => { a === b && c != d }", -1, 0, -1);
 
     hb_buffer_set_direction(buf, HB_DIRECTION_LTR);
     hb_buffer_set_script(buf, HB_SCRIPT_LATIN);
@@ -89,12 +89,14 @@ void font_test() {
     hb_blob_t *blob = hb_blob_create_from_file(fontFile); /* or hb_blob_create_from_file_or_fail() */
     hb_face_t *face = hb_face_create(blob, 0);
     hb_font_t *font = hb_font_create(face);
+    hb_font_set_scale(font, font_size * 64, font_size * 64);
 
-    hb_shape(font, buf, NULL, 0);
+    hb_shape(font, buf, nullptr, 0);
 
     unsigned int glyph_count;
     hb_glyph_info_t *glyph_info = hb_buffer_get_glyph_infos(buf, &glyph_count);
     hb_glyph_position_t *glyph_pos = hb_buffer_get_glyph_positions(buf, &glyph_count);
+
 
     hb_position_t cursor_x = 0;
     hb_position_t cursor_y = 0;
@@ -104,6 +106,7 @@ void font_test() {
         hb_position_t y_offset = glyph_pos[i].y_offset;
         hb_position_t x_advance = glyph_pos[i].x_advance;
         hb_position_t y_advance = glyph_pos[i].y_advance;
+
         if (FT_Load_Glyph(ftFace, glyphid, FT_LOAD_RENDER)) {
             std::cerr << "FAIL LOAD " << glyphid << std::endl;
         } else {
@@ -162,6 +165,8 @@ void font_test() {
 }
 
 int main() {
+    float init = the_time();
+
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW" << std::endl;
         return 1;
@@ -171,7 +176,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_SAMPLES, 8);
+    glfwWindowHint(GLFW_SAMPLES, 0);
 
     auto window = glfwCreateWindow(1024, 768, "Blink 0.1.0", nullptr, nullptr);
     glfwMakeContextCurrent(window);
@@ -182,6 +187,9 @@ int main() {
         glfwTerminate();
         return 1;
     }
+
+    float end = the_time();
+    std::cout << "Initialized after " << (end - init) * 1000 << "ms" << std::endl;
 
     glfwSetWindowRefreshCallback(window, redraw);
 
