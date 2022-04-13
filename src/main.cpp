@@ -111,8 +111,9 @@ void font_test() {
 
             auto horizontalOffset = glyph->metrics.horiBearingX / 64;
             auto verticalOffset = glyph->metrics.horiBearingY / 64;
+            auto ascender = font.ft_face()->size->metrics.ascender / 64;
 
-            render_glyphs.push_back({texture, pos_x + horizontalOffset, pos_y - verticalOffset + 32,
+            render_glyphs.push_back({texture, pos_x + horizontalOffset, pos_y - verticalOffset + ascender,
                                      (double) glyph->bitmap.width,
                                      (double) glyph->bitmap.rows});
         }

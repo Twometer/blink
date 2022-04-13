@@ -10,7 +10,7 @@ set(HB_SOURCES
         lib/harfbuzz/src/harfbuzz.cc)
 
 set(BLINK_SOURCES
-        src/main.cpp src/shader_src.hpp src/loader.cpp src/loader.hpp src/shader.cpp src/shader.hpp src/font.cpp src/font.hpp src/freetype.cpp src/freetype.hpp)
+        src/main.cpp src/shader_src.hpp src/loader.cpp src/loader.hpp src/shader.cpp src/shader.hpp src/font.cpp src/font.hpp src/freetype.cpp src/freetype.hpp src/atlas.cpp src/atlas.hpp)
 
 add_subdirectory(lib/glfw)
 
@@ -21,6 +21,8 @@ target_link_directories(blink PRIVATE lib/freetype)
 target_link_libraries(blink glfw ${GLFW_LIBRARIES} freetype)
 
 if (WIN32)
-    set_target_properties(blink PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:WINDOWS")
+    if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+        set_target_properties(blink PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:WINDOWS")
+    endif ()
     file(COPY lib/freetype/freetype.dll DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif ()

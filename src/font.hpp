@@ -23,9 +23,9 @@ public:
 
     ~font();
 
-    inline hb_font_t *hb_font() { return m_hb_font; }
+    [[nodiscard]] inline hb_font_t *hb_font() { return m_hb_font; }
 
-    inline FT_Face ft_face() { return m_ft_face; }
+    [[nodiscard]] inline FT_Face ft_face() { return m_ft_face; }
 
 };
 
