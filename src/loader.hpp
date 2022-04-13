@@ -9,12 +9,19 @@
 #include <glad/glad.h>
 #include "shader.hpp"
 
+struct file_contents {
+    uint8_t *data;
+    size_t size;
+};
+
 class loader {
 private:
     static void check_shader(const std::string &name, GLuint shader);
 
 public:
     static shader *load_shader(const char *vert, const char *frag);
+
+    static file_contents load_file(const std::string &path);
 };
 
 

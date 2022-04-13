@@ -10,6 +10,7 @@
 #include "shader.hpp"
 #include "shader_src.hpp"
 #include "loader.hpp"
+#include "font.hpp"
 
 shader *basic_shader;
 
@@ -61,22 +62,10 @@ void font_test() {
     auto fontFile = R"(C:\Windows\Fonts\CascadiaCode.ttf)";
     //auto fontFile = R"(C:\Windows\Fonts\Consola.ttf)";
 
-    FT_Library ft;
-    if (FT_Init_FreeType(&ft)) {
-        std::cerr << "Failed to initialize FreeType" << std::endl;
-        return;
-    }
-
-    FT_Face ftFace;
-    if (FT_New_Face(ft, fontFile, 0, &ftFace)) {
-        std::cerr << "Failed to load FT font" << std::endl;
-        return;
-    }
-
-    const int font_size = 16;
-    FT_Set_Char_Size(ftFace, font_size * 64, font_size * 64, 0, 0);
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    font font(fontFile, 15);
 
     hb_buffer_t *buf;
     buf = hb_buffer_create();
@@ -86,12 +75,7 @@ void font_test() {
     hb_buffer_set_script(buf, HB_SCRIPT_LATIN);
     hb_buffer_set_language(buf, hb_language_from_string("en", -1));
 
-    hb_blob_t *blob = hb_blob_create_from_file(fontFile); /* or hb_blob_create_from_file_or_fail() */
-    hb_face_t *face = hb_face_create(blob, 0);
-    hb_font_t *font = hb_font_create(face);
-    hb_font_set_scale(font, font_size * 64, font_size * 64);
-
-    hb_shape(font, buf, nullptr, 0);
+    hb_shape(font.hb_font(), buf, nullptr, 0);
 
     unsigned int glyph_count;
     hb_glyph_info_t *glyph_info = hb_buffer_get_glyph_infos(buf, &glyph_count);
@@ -107,12 +91,12 @@ void font_test() {
         hb_position_t x_advance = glyph_pos[i].x_advance;
         hb_position_t y_advance = glyph_pos[i].y_advance;
 
-        if (FT_Load_Glyph(ftFace, glyphid, FT_LOAD_RENDER)) {
+        if (FT_Load_Glyph(font.ft_face(), glyphid, FT_LOAD_RENDER)) {
             std::cerr << "FAIL LOAD " << glyphid << std::endl;
         } else {
             auto pos_x = (cursor_x + x_offset) / 64.0;
             auto pos_y = (cursor_y + y_offset) / 64.0;
-            auto glyph = ftFace->glyph;
+            auto glyph = font.ft_face()->glyph;
 
             GLuint texture;
             glGenTextures(1, &texture);
@@ -137,9 +121,7 @@ void font_test() {
     }
 
     hb_buffer_destroy(buf);
-    hb_font_destroy(font);
-    hb_face_destroy(face);
-    hb_blob_destroy(blob);
+
 
     GLfloat vertexData[6][4] = {
             {0, 0, 0.0, 0.0},

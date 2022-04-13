@@ -44,3 +44,19 @@ shader *loader::load_shader(const char *vert, const char *frag) {
     return new shader(program);
 
 }
+
+file_contents loader::load_file(const std::string &path) {
+    FILE *fd;
+    fopen_s(&fd, path.c_str(), "rb");
+
+    fseek(fd, 0, SEEK_END);
+    size_t file_size = ftell(fd);
+    fseek(fd, 0, SEEK_SET);
+
+    auto *data = new uint8_t[file_size];
+    fread(data, 1, file_size, fd);
+
+    fclose(fd);
+
+    return {data, file_size};
+}

@@ -12,8 +12,8 @@
 
 class shader {
 private:
-    GLuint program_id;
-    std::map<std::string, GLint> uniform_cache;
+    GLuint m_program_id;
+    std::map<std::string, GLint> m_uniform_cache;
 
 public:
     explicit shader(GLuint programId);

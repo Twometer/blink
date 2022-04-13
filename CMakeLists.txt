@@ -10,12 +10,12 @@ set(HB_SOURCES
         lib/harfbuzz/src/harfbuzz.cc)
 
 set(BLINK_SOURCES
-        src/main.cpp src/shader_src.hpp src/loader.cpp src/loader.hpp src/shader.cpp src/shader.hpp)
+        src/main.cpp src/shader_src.hpp src/loader.cpp src/loader.hpp src/shader.cpp src/shader.hpp src/font.cpp src/font.hpp src/freetype.cpp src/freetype.hpp)
 
 add_subdirectory(lib/glfw)
 
 add_executable(blink ${GLAD_SOURCES} ${HB_SOURCES} ${BLINK_SOURCES})
-#set_target_properties(blink PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:WINDOWS")
+set_target_properties(blink PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:WINDOWS")
 
 target_include_directories(blink PRIVATE lib/glad/include lib/glm lib/glfw/include lib/harfbuzz/src lib/freetype/include)
 target_link_directories(blink PRIVATE lib/freetype)

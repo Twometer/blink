@@ -5,16 +5,16 @@
 #include "shader.hpp"
 
 shader::shader(GLuint program_id)
-        : program_id(program_id) {
+        : m_program_id(program_id) {
 }
 
 GLint shader::get_uniform_location(const std::string &uniform) {
-    if (uniform_cache.find(uniform) == uniform_cache.end()) {
-        auto loc = glGetUniformLocation(program_id, uniform.c_str());
-        uniform_cache[uniform] = loc;
+    if (m_uniform_cache.find(uniform) == m_uniform_cache.end()) {
+        auto loc = glGetUniformLocation(m_program_id, uniform.c_str());
+        m_uniform_cache[uniform] = loc;
         return loc;
     } else {
-        return uniform_cache[uniform];
+        return m_uniform_cache[uniform];
     }
 }
 
@@ -39,7 +39,7 @@ void shader::set(const std::string &uniform, bool value) {
 }
 
 void shader::bind() const {
-    glUseProgram(program_id);
+    glUseProgram(m_program_id);
 }
 
 void shader::unbind() {
