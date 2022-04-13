@@ -18,7 +18,7 @@ atlas::atlas(int size, int min_row_size) : m_size(size), m_min_row_size(min_row_
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, size, size, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
 }
 
-void atlas::insert(int codepoint, int w, int h, uint8_t *data) {
+const atlas_sprite &atlas::insert(int sprite_id, int w, int h, uint8_t *data) {
     auto &row = find_free_row(w, h);
     int x = row.offset;
     int y = row.y_pos;
@@ -26,7 +26,8 @@ void atlas::insert(int codepoint, int w, int h, uint8_t *data) {
 
     glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, GL_RED, GL_UNSIGNED_BYTE, data);
     auto size = (float) m_size;
-    m_sprites[codepoint] = {(float) x / size, (float) y / size, (float) w / size, (float) h / size};
+
+    return m_sprites[sprite_id] = {(float) x / size, (float) y / size, (float) w / size, (float) h / size};
 }
 
 atlas_row &atlas::find_free_row(int w, int h) {

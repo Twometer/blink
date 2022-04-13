@@ -35,9 +35,9 @@ private:
 public:
     atlas(int size, int min_row_size);
 
-    void insert(int codepoint, int w, int h, uint8_t *data);
+    const atlas_sprite & insert(int sprite_id, int w, int h, uint8_t *data);
 
-    [[nodiscard]] inline const atlas_sprite &get_sprite(int codepoint) const { return m_sprites.at(codepoint); }
+    [[nodiscard]] inline const atlas_sprite &get_sprite(int sprite_id) const { return m_sprites.at(sprite_id); }
 
     [[nodiscard]] inline int size() const { return m_size; }
 
