@@ -15,10 +15,12 @@ set(BLINK_SOURCES
 add_subdirectory(lib/glfw)
 
 add_executable(blink ${GLAD_SOURCES} ${HB_SOURCES} ${BLINK_SOURCES})
-set_target_properties(blink PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:WINDOWS")
 
 target_include_directories(blink PRIVATE lib/glad/include lib/glm lib/glfw/include lib/harfbuzz/src lib/freetype/include)
 target_link_directories(blink PRIVATE lib/freetype)
 target_link_libraries(blink glfw ${GLFW_LIBRARIES} freetype)
 
-file(COPY lib/freetype/freetype.dll DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+if (WIN32)
+    set_target_properties(blink PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:WINDOWS")
+    file(COPY lib/freetype/freetype.dll DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+endif ()
