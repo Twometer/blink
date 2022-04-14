@@ -31,11 +31,12 @@ private:
     GLuint m_texture_id = 0;
     std::vector<atlas_row> m_rows{};
     std::map<int, atlas_sprite> m_sprites{};
+    const atlas_sprite EMPTY_SPRITE{0, 0, 0, 0};
 
 public:
     atlas(int size, int min_row_size);
 
-    const atlas_sprite & insert(int sprite_id, int w, int h, uint8_t *data);
+    const atlas_sprite &insert(int sprite_id, int w, int h, uint8_t *data);
 
     [[nodiscard]] inline const atlas_sprite &get_sprite(int sprite_id) const { return m_sprites.at(sprite_id); }
 

@@ -13,16 +13,16 @@ layout (location = 0) in vec4 vertPosTex;
 out vec2 fragTexCoord;
 out vec2 fragPos;
 
-uniform mat4 mvpMatrix;
-uniform vec4 rect;
+uniform mat4 mvp_matrix;
+uniform vec4 pos_rect;
+uniform vec4 tex_rect;
 
 void main() {
-    vec2 pos = vertPosTex.xy;
-    pos *= rect.zw;
-    pos += rect.xy;
-    gl_Position = mvpMatrix * vec4(pos, 0.0, 1.0);
+    vec2 pos = (vertPosTex.xy * pos_rect.zw) + pos_rect.xy;
+    vec2 tex = (vertPosTex.zw * tex_rect.zw) + tex_rect.xy;
+    gl_Position = mvp_matrix * vec4(pos, 0.0, 1.0);
     fragPos = pos;
-    fragTexCoord = vertPosTex.zw;
+    fragTexCoord = tex;
 }
 )|";
 

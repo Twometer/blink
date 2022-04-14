@@ -5,10 +5,19 @@
 #ifndef BLINK_FONT_HPP
 #define BLINK_FONT_HPP
 
-
+#include <map>
 #include <string>
 #include <freetype/freetype.h>
 #include <hb.h>
+#include "atlas.hpp"
+
+struct glyph_info {
+    atlas_sprite sprite;
+    long bearing_x;
+    long bearing_y;
+    unsigned width;
+    unsigned height;
+};
 
 class font {
 private:
@@ -16,16 +25,21 @@ private:
     hb_face_t *m_hb_face = nullptr;
     hb_font_t *m_hb_font = nullptr;
     FT_Face m_ft_face = nullptr;
-    int size;
+    std::map<int, glyph_info> m_glyphs;
+    atlas m_atlas;
 
 public:
     explicit font(const std::string &path, int size);
 
     ~font();
 
-    [[nodiscard]] inline hb_font_t *hb_font() { return m_hb_font; }
+    const glyph_info &get_glyph_info(int codepoint);
 
-    [[nodiscard]] inline FT_Face ft_face() { return m_ft_face; }
+    [[nodiscard]] inline const atlas &atlas() const { return m_atlas; }
+
+    [[nodiscard]] inline hb_font_t *hb_font() const { return m_hb_font; }
+
+    [[nodiscard]] inline FT_Face ft_face() const { return m_ft_face; }
 
 };
 

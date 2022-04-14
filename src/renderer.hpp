@@ -9,15 +9,14 @@
 #include <GLFW/glfw3.h>
 #include "shader.hpp"
 #include "atlas.hpp"
-#include "glyph_cache.hpp"
+#include "text_buffer.hpp"
 
 class renderer {
 private:
     GLFWwindow *m_window;
     shader *m_basic_shader;
     font m_font;
-    atlas m_atlas;
-    glyph_cache m_glyph_cache;
+    text_buffer m_text_buffer{};
 
 public:
     explicit renderer(GLFWwindow *window);

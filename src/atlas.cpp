@@ -2,6 +2,7 @@
 // Created by Twometer on 13 Apr 2022.
 //
 
+#include <iostream>
 #include <stdexcept>
 #include "atlas.hpp"
 
@@ -19,6 +20,10 @@ atlas::atlas(int size, int min_row_size) : m_size(size), m_min_row_size(min_row_
 }
 
 const atlas_sprite &atlas::insert(int sprite_id, int w, int h, uint8_t *data) {
+    if (w == 0 && h == 0) {
+        return EMPTY_SPRITE;
+    }
+
     auto &row = find_free_row(w, h);
     int x = row.offset;
     int y = row.y_pos;
