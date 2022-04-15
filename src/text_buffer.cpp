@@ -6,7 +6,6 @@
 
 text_buffer::text_buffer() {
     m_buffer = hb_buffer_create();
-    clear();
 }
 
 text_buffer::~text_buffer() {
@@ -14,17 +13,19 @@ text_buffer::~text_buffer() {
 }
 
 void text_buffer::add_text(const std::string &data) {
-    hb_buffer_add_utf8(m_buffer, data.c_str(), (int) data.length(), 0, -1);
+    m_string += data;
+}
+
+void text_buffer::add_char(const char c) {
+    m_string += c;
 }
 
 void text_buffer::clear() {
-    hb_buffer_clear_contents(m_buffer);
-    hb_buffer_set_direction(m_buffer, HB_DIRECTION_LTR);
-    hb_buffer_set_script(m_buffer, HB_SCRIPT_LATIN);
-    hb_buffer_set_language(m_buffer, hb_language_from_string("en", -1));
+    m_string.clear();
 }
 
 std::vector<shaped_glyph> text_buffer::shape(font &font, int x_base, int y_base) {
+    reset_hb();
     hb_shape(font.hb_font(), m_buffer, nullptr, 0);
 
     unsigned int glyph_count;
@@ -57,3 +58,12 @@ std::vector<shaped_glyph> text_buffer::shape(font &font, int x_base, int y_base)
 
     return result;
 }
+
+void text_buffer::reset_hb() {
+    hb_buffer_clear_contents(m_buffer);
+    hb_buffer_set_direction(m_buffer, HB_DIRECTION_LTR);
+    hb_buffer_set_script(m_buffer, HB_SCRIPT_LATIN);
+    hb_buffer_set_language(m_buffer, hb_language_from_string("en", -1));
+    hb_buffer_add_utf8(m_buffer, m_string.c_str(), (int) m_string.length(), 0, -1);
+}
+

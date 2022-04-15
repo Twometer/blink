@@ -17,6 +17,8 @@ private:
 public:
     void insert(const std::string &data, int offset = 0);
 
+    void insert(char c, int offset = 0);
+
     void render(font &font);
 
     [[nodiscard]] inline const std::vector<shaped_glyph> &shaped_glyphs() const { return m_shaped; };

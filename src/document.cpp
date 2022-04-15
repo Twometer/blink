@@ -9,6 +9,11 @@ void document::insert(const std::string &data, int offset) {
     m_dirty = true;
 }
 
+void document::insert(char c, int offset) {
+    m_buffer.add_char(c);
+    m_dirty = true;
+}
+
 void document::render(font &font) {
     if (m_dirty) {
         m_shaped = m_buffer.shape(font, 0, 0);

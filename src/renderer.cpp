@@ -28,7 +28,7 @@ renderer::renderer(GLFWwindow *window) : m_window(window), m_font(R"(C:\Windows\
 
 renderer::~renderer() = default;
 
-void renderer::draw_frame() {
+void renderer::on_draw_frame() {
     int w, h;
     glfwGetFramebufferSize(m_window, &w, &h);
 
@@ -52,4 +52,12 @@ void renderer::draw_frame() {
         m_glyph_shader->set("tex_rect", glm::vec4(glyph.sprite.u, glyph.sprite.v, glyph.sprite.w, glyph.sprite.h));
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }
+}
+
+void renderer::on_char_typed(char chr) {
+    m_document.insert(chr);
+}
+
+void renderer::on_mouse_click() {
+
 }

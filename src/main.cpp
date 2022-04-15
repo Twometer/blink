@@ -32,13 +32,19 @@ GLFWwindow *create_window() {
 }
 
 void draw_frame(GLFWwindow *window) {
-    the_renderer->draw_frame();
+    the_renderer->on_draw_frame();
     glfwSwapBuffers(window);
+}
+
+void char_cb(GLFWwindow *window, unsigned codepoint) {
+    the_renderer->on_char_typed((char) codepoint);
+    draw_frame(window);
 }
 
 int main() {
     auto window = create_window();
     glfwSetWindowRefreshCallback(window, draw_frame);
+    glfwSetCharCallback(window, char_cb);
 
     the_renderer = new renderer(window);
     while (!glfwWindowShouldClose(window)) {

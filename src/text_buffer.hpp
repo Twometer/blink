@@ -22,6 +22,7 @@ struct shaped_glyph {
 
 class text_buffer {
 private:
+    std::string m_string;
     hb_buffer_t *m_buffer;
 
 public:
@@ -31,9 +32,14 @@ public:
 
     void add_text(const std::string &data);
 
+    void add_char(char data);
+
     void clear();
 
     std::vector<shaped_glyph> shape(font &font, int x_base = 0, int y_base = 0);
+
+private:
+    void reset_hb();
 };
 
 
