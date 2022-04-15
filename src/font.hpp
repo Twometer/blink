@@ -41,6 +41,8 @@ public:
 
     [[nodiscard]] inline FT_Face ft_face() const { return m_ft_face; }
 
+    [[nodiscard]] inline unsigned line_height() const { return m_ft_face->size->metrics.height / 64; }
+
 };
 
 

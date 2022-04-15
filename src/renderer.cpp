@@ -56,18 +56,18 @@ void renderer::on_draw_frame() {
     m_rect_mesh.bind();
 
     m_document.shape(m_font);
-    for (auto &glyph: m_document.shaped_glyphs()) {
+    /*for (auto &glyph: m_document.shaped_glyphs()) {
         m_glyph_shader->set("pos_rect", glm::vec4(glyph.pos_x, glyph.pos_y, glyph.width, glyph.height));
         m_glyph_shader->set("tex_rect", glm::vec4(glyph.sprite.u, glyph.sprite.v, glyph.sprite.w, glyph.sprite.h));
         glDrawArrays(GL_TRIANGLES, 0, 6);
-    }
+    }*/
 
     m_cursor_shader->bind();
     m_cursor_shader->set("mvp_matrix", matrix);
     m_cursor_shader->set("time", (float) glfwGetTime());
     unsigned cursor_x = m_document.get_cursor_pos(m_cursor_pos);
     if (cursor_x > 0) cursor_x -= 1;
-    m_cursor_shader->set("pos_rect", glm::vec4(cursor_x, 0, 1, 18));
+    m_cursor_shader->set("pos_rect", glm::vec4(cursor_x, 0, 1, m_font.line_height()));
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
