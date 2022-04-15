@@ -11,7 +11,8 @@
 #include "font.hpp"
 
 struct shaped_glyph {
-    int codepoint;
+    unsigned cluster_idx;
+    unsigned codepoint;
     int pos_x;
     int pos_y;
     unsigned width;

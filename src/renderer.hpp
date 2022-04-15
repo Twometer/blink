@@ -10,13 +10,16 @@
 #include "shader.hpp"
 #include "atlas.hpp"
 #include "text_buffer.hpp"
+#include "document.hpp"
+#include "mesh.hpp"
 
 class renderer {
 private:
     GLFWwindow *m_window;
-    shader *m_basic_shader;
+    shader *m_glyph_shader;
     font m_font;
-    text_buffer m_text_buffer{};
+    document m_document{};
+    mesh m_glyph_mesh;
 
 public:
     explicit renderer(GLFWwindow *window);
@@ -24,7 +27,6 @@ public:
     ~renderer();
 
     void draw_frame();
-
 };
 
 

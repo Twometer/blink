@@ -5,7 +5,7 @@
 #ifndef BLINK_SHADER_SRC_HPP
 #define BLINK_SHADER_SRC_HPP
 
-static const char* const SHADER_BASIC_VERT = R"|(
+static const char* const SHADER_GLYPH_VERT = R"|(
 #version 330 core
 
 layout (location = 0) in vec4 vertPosTex;
@@ -26,7 +26,7 @@ void main() {
 }
 )|";
 
-static const char* const SHADER_BASIC_FRAG = R"|(
+static const char* const SHADER_GLYPH_FRAG = R"|(
 #version 330 core
 
 uniform float time;

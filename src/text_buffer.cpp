@@ -42,13 +42,14 @@ std::vector<shaped_glyph> text_buffer::shape(font &font, int x_base, int y_base)
         hb_position_t y_offset = glyph_pos[i].y_offset;
         hb_position_t x_advance = glyph_pos[i].x_advance;
         hb_position_t y_advance = glyph_pos[i].y_advance;
+        unsigned cluster_idx = glyph_info[i].cluster;
 
         auto &glyph = font.get_glyph_info((int) codepoint);
 
         auto pos_x = (cursor_x + x_offset + glyph.bearing_x) / 64.0;
         auto pos_y = (cursor_y + y_offset - glyph.bearing_y) / 64.0;
 
-        result.emplace_back(codepoint, (int) pos_x, (int) pos_y, glyph.width, glyph.height, glyph.sprite);
+        result.emplace_back(cluster_idx, codepoint, (int) pos_x, (int) pos_y, glyph.width, glyph.height, glyph.sprite);
 
         cursor_x += x_advance;
         cursor_y += y_advance;
