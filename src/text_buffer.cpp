@@ -13,14 +13,14 @@ text_buffer::~text_buffer() {
     hb_buffer_destroy(m_buffer);
 }
 
-void text_buffer::add_text(const std::string &data, unsigned offset) {
+void text_buffer::add_text(const std::u32string &data, unsigned offset) {
     if (offset >= m_string.length())
         m_string += data;
     else
         m_string.insert(offset, data);
 }
 
-void text_buffer::add_char(const char c, unsigned offset) {
+void text_buffer::add_char(char32_t c, unsigned offset) {
     if (offset >= m_string.length())
         m_string += c;
     else
@@ -31,7 +31,7 @@ void text_buffer::remove_text(unsigned offset, unsigned len) {
     m_string.erase(offset, len);
 }
 
-std::string text_buffer::remove_text_and_get(unsigned int offset, unsigned int len) {
+std::u32string text_buffer::remove_text_and_get(unsigned int offset, unsigned int len) {
     auto erased = m_string.substr(offset, len);
     remove_text(offset, len);
     return erased;
@@ -81,10 +81,8 @@ std::vector<shaped_glyph> text_buffer::shape(font &font, int x_base, int y_base)
 
 void text_buffer::reset_hb() {
     hb_buffer_clear_contents(m_buffer);
-    hb_buffer_set_direction(m_buffer, HB_DIRECTION_LTR);
-    hb_buffer_set_script(m_buffer, HB_SCRIPT_LATIN);
-    hb_buffer_set_language(m_buffer, hb_language_from_string("en", -1));
-    hb_buffer_add_utf8(m_buffer, m_string.c_str(), (int) m_string.length(), 0, -1);
+    hb_buffer_add_utf32(m_buffer, (uint32_t *) m_string.data(), (int) m_string.length(), 0, -1);
+    hb_buffer_guess_segment_properties(m_buffer);
 }
 
 

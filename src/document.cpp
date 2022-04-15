@@ -4,7 +4,7 @@
 
 #include "document.hpp"
 
-unsigned document::insert(const std::string &data, unsigned pos_x, unsigned pos_y) {
+unsigned document::insert(const std::u32string &data, unsigned pos_x, unsigned pos_y) {
     if (m_lines.empty()) insert_line(0);
 
     auto &line = m_lines[pos_y];
@@ -16,7 +16,7 @@ unsigned document::insert(const std::string &data, unsigned pos_x, unsigned pos_
     return num_inserted;
 }
 
-unsigned document::insert(char c, unsigned pos_x, unsigned pos_y) {
+unsigned document::insert(char32_t c, unsigned pos_x, unsigned pos_y) {
     if (m_lines.empty()) insert_line(0);
 
     auto &line = m_lines[pos_y];
@@ -83,6 +83,10 @@ unsigned document::find_one_of(const std::set<char> &c, unsigned int pos_x, unsi
         idx += direction;
     }
     return direction < 0 ? 0 : m_length;
+}
+
+document::document() {
+    insert_line(0);
 }
 
 document::~document() {

@@ -36,13 +36,13 @@ void draw_frame(GLFWwindow *window) {
     glfwSwapBuffers(window);
 }
 
-void click_cb(GLFWwindow *, int button, int action, int ) {
+void click_cb(GLFWwindow *, int button, int action, int) {
     if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS)
         the_renderer->on_mouse_click();
 }
 
 void char_cb(GLFWwindow *window, unsigned codepoint) {
-    the_renderer->on_char_typed((char) codepoint);
+    the_renderer->on_char_typed((char32_t) codepoint);
     draw_frame(window);
 }
 

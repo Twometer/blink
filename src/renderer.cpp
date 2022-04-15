@@ -25,16 +25,22 @@ float get_scale(GLFWwindow *window) {
     return scale;
 }
 
+#ifdef WIN32
+#define FONT R"(C:\Windows\Fonts\CascadiaCode.ttf)"
+#else
+#define FONT R"(/System/Library/Fonts/SFNSMono.ttf)"
+#endif
+
 renderer::renderer(GLFWwindow *window) : m_window(window),
                                          m_gui_scale(get_scale(window)),
-                                         m_font(R"(/System/Library/Fonts/SFNSMono.ttf)", 15 * get_scale(window)),
+                                         m_font(FONT, 15 * get_scale(window)),
                                          m_rect_mesh((GLfloat *) rect_vertices, sizeof(GLfloat) * 6 * 4) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glClearColor(26.0 / 255.0, 27.0 / 255.0, 38.0 / 255.0, 1.0);
     m_glyph_shader = loader::load_shader(SHADER_RECT_VERT, SHADER_GLYPH_FRAG);
     m_cursor_shader = loader::load_shader(SHADER_RECT_VERT, SHADER_CURSOR_FRAG);
-    m_cursor_x += m_document.insert("v ==> v || 'Hello, world!';");
+    //m_cursor_x += m_document.insert(std::u32string("v ==> v || 'Hello, world!';"));
 }
 
 renderer::~renderer() = default;
@@ -85,7 +91,7 @@ void renderer::on_draw_frame() {
     m_fps_manager.on_frame_end();
 }
 
-void renderer::on_char_typed(char chr) {
+void renderer::on_char_typed(char32_t chr) {
     m_cursor_x += m_document.insert(chr, m_cursor_x, m_cursor_y);
 }
 

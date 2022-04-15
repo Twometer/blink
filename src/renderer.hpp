@@ -34,7 +34,7 @@ public:
 
     void on_draw_frame();
 
-    void on_char_typed(char chr);
+    void on_char_typed(char32_t chr);
 
     void on_mouse_click();
 

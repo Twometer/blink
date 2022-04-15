@@ -20,11 +20,13 @@ private:
     size_t m_length = 0;
 
 public:
+    document();
+
     ~document();
 
-    unsigned insert(const std::string &data, unsigned pos_x = 0, unsigned pos_y = 0);
+    unsigned insert(const std::u32string &data, unsigned pos_x = 0, unsigned pos_y = 0);
 
-    unsigned insert(char c, unsigned pos_x = 0, unsigned pos_y = 0);
+    unsigned insert(char32_t c, unsigned pos_x = 0, unsigned pos_y = 0);
 
     void remove(unsigned pos_x, unsigned pos_y = 0, unsigned len = 1);
 
