@@ -21,6 +21,7 @@ struct atlas_row {
     const int y_pos;
     const int height;
     int offset;
+    atlas_row(int y_pos, int height, int offset) : y_pos(y_pos), height(height), offset(offset) {}
 };
 
 class atlas {

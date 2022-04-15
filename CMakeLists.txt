@@ -25,4 +25,7 @@ if (WIN32)
         set_target_properties(blink PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:WINDOWS")
     endif ()
     file(COPY lib/freetype/freetype.dll DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+elseif (APPLE)
+    target_link_directories(blink PRIVATE /opt/homebrew/Cellar/freetype/2.12.0/lib)
 endif ()
+

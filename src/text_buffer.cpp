@@ -2,6 +2,7 @@
 // Created by Twometer on 14 Apr 2022.
 //
 
+#include <iostream>
 #include "text_buffer.hpp"
 
 text_buffer::text_buffer() {
@@ -57,11 +58,13 @@ std::vector<shaped_glyph> text_buffer::shape(font &font, int x_base, int y_base)
 
         auto &glyph = font.get_glyph_info((int) codepoint);
 
-        auto pos_x = (cursor_x + x_offset + glyph.bearing_x) / 64.0;
-        auto pos_y = (cursor_y + y_offset - glyph.bearing_y) / 64.0;
+        auto pos_x = (cursor_x + x_offset + glyph.bearing_x) / 64;
+        auto pos_y = (cursor_y + y_offset - glyph.bearing_y) / 64;
 
-        result.emplace_back(cluster_idx, codepoint, (int) pos_x, (int) pos_y, glyph.width, glyph.height, x_advance / 64,
-                            glyph.sprite);
+        shaped_glyph shaped_glyph = {cluster_idx, codepoint, (int) pos_x, (int) pos_y, glyph.width, glyph.height,
+                                     x_advance / 64u,
+                                     glyph.sprite};
+        result.push_back(shaped_glyph);
 
         cursor_x += x_advance;
         cursor_y += y_advance;
@@ -77,5 +80,6 @@ void text_buffer::reset_hb() {
     hb_buffer_set_language(m_buffer, hb_language_from_string("en", -1));
     hb_buffer_add_utf8(m_buffer, m_string.c_str(), (int) m_string.length(), 0, -1);
 }
+
 
 

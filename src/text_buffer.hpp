@@ -41,6 +41,8 @@ public:
 
     std::vector<shaped_glyph> shape(font &font, int x_base = 0, int y_base = 0);
 
+    [[nodiscard]] inline size_t size() const { return m_string.size(); };
+
     [[nodiscard]] inline char at(unsigned offset) const { return m_string[offset]; };
 
 private:

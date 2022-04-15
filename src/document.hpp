@@ -16,10 +16,12 @@ struct line {
 
 class document {
 private:
-    std::vector<line> m_lines{};
+    std::vector<line*> m_lines{};
     size_t m_length = 0;
 
 public:
+    ~document();
+
     unsigned insert(const std::string &data, unsigned pos_x = 0, unsigned pos_y = 0);
 
     unsigned insert(char c, unsigned pos_x = 0, unsigned pos_y = 0);
@@ -30,13 +32,13 @@ public:
 
     void shape(font &font);
 
-    unsigned find_one_of(std::set<char> c, unsigned pos_x, unsigned pos_y, int direction);
+    unsigned find_one_of(const std::set<char> &c, unsigned pos_x, unsigned pos_y, int direction);
 
     [[nodiscard]] unsigned get_cursor_pos(unsigned char_pos_x, unsigned char_pos_y = 0);
 
     [[nodiscard]] inline size_t length() const { return m_length; };
 
-    [[nodiscard]] inline const std::vector<line> &lines() const { return m_lines; };
+    [[nodiscard]] inline const std::vector<line*> &lines() const { return m_lines; };
 };
 
 

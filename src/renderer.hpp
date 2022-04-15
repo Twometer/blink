@@ -21,7 +21,8 @@ private:
     font m_font;
     document m_document{};
     mesh m_rect_mesh;
-    unsigned m_cursor_pos = 0;
+    unsigned m_cursor_x = 0;
+    unsigned m_cursor_y = 0;
 
 public:
     explicit renderer(GLFWwindow *window);
@@ -36,6 +37,8 @@ public:
 
     void on_key_press(int key, int mods);
 
+private:
+    [[nodiscard]] line* current_line() const { return m_document.lines()[m_cursor_y]; }
 };
 
 

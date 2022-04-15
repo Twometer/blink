@@ -46,8 +46,7 @@ shader *loader::load_shader(const char *vert, const char *frag) {
 }
 
 file_contents loader::load_file(const std::string &path) {
-    FILE *fd;
-    fopen_s(&fd, path.c_str(), "rb");
+    FILE *fd = fopen(path.c_str(), "rb");
 
     fseek(fd, 0, SEEK_END);
     size_t file_size = ftell(fd);
