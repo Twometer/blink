@@ -77,7 +77,7 @@ void renderer::on_draw_frame() {
     m_cursor_shader->bind();
     m_cursor_shader->set("mvp_matrix", matrix);
     m_cursor_shader->set("time", (float) glfwGetTime());
-    unsigned cursor_x = m_document.get_cursor_pos(m_cursor_x);
+    unsigned cursor_x = m_document.get_cursor_pos(m_cursor_x, m_cursor_y);
     if (cursor_x > 0) cursor_x -= 1;
     m_cursor_shader->set("pos_rect", glm::vec4(cursor_x, m_cursor_y * m_font.line_height(), 1, m_font.line_height()));
     glDrawArrays(GL_TRIANGLES, 0, 6);
