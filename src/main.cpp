@@ -41,10 +41,16 @@ void char_cb(GLFWwindow *window, unsigned codepoint) {
     draw_frame(window);
 }
 
+void key_cb(GLFWwindow *, int key, int scancode, int action, int mods) {
+    if (action == GLFW_PRESS || action == GLFW_REPEAT)
+        the_renderer->on_key_press(key, mods);
+}
+
 int main() {
     auto window = create_window();
     glfwSetWindowRefreshCallback(window, draw_frame);
     glfwSetCharCallback(window, char_cb);
+    glfwSetKeyCallback(window, key_cb);
 
     the_renderer = new renderer(window);
     while (!glfwWindowShouldClose(window)) {

@@ -5,7 +5,7 @@
 #ifndef BLINK_SHADER_SRC_HPP
 #define BLINK_SHADER_SRC_HPP
 
-static const char* const SHADER_GLYPH_VERT = R"|(
+static const char* const SHADER_RECT_VERT = R"|(
 #version 330 core
 
 layout (location = 0) in vec4 vertPosTex;
@@ -46,6 +46,20 @@ void main() {
     float alpha = texture(tex, fragTexCoord).r;
     vec4 rainbow = vec4(hsl2rgb(vec3((fragPos.x + fragPos.y) * 0.0025 + time * 0.5, 0.5, 0.5)), 1.0);
     fragColor = vec4(1, 1, 1, alpha) * rainbow;
+}
+)|";
+
+static const char* const SHADER_CURSOR_FRAG = R"|(
+#version 330 core
+
+uniform float time;
+
+in vec2 fragPos;
+out vec4 fragColor;
+
+void main() {
+    float alpha = abs(sin(3 * time));
+    fragColor = vec4(1, 1, 1, alpha);
 }
 )|";
 

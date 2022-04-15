@@ -17,9 +17,11 @@ class renderer {
 private:
     GLFWwindow *m_window;
     shader *m_glyph_shader;
+    shader *m_cursor_shader;
     font m_font;
     document m_document{};
-    mesh m_glyph_mesh;
+    mesh m_rect_mesh;
+    unsigned m_cursor_pos = 0;
 
 public:
     explicit renderer(GLFWwindow *window);
@@ -31,6 +33,9 @@ public:
     void on_char_typed(char chr);
 
     void on_mouse_click();
+
+    void on_key_press(int key, int mods);
+
 };
 
 

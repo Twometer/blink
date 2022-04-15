@@ -12,12 +12,22 @@ text_buffer::~text_buffer() {
     hb_buffer_destroy(m_buffer);
 }
 
-void text_buffer::add_text(const std::string &data) {
-    m_string += data;
+void text_buffer::add_text(const std::string &data, unsigned offset) {
+    if (offset >= m_string.length())
+        m_string += data;
+    else
+        m_string.insert(offset, data);
 }
 
-void text_buffer::add_char(const char c) {
-    m_string += c;
+void text_buffer::add_char(const char c, unsigned offset) {
+    if (offset >= m_string.length())
+        m_string += c;
+    else
+        m_string.insert(offset, 1, c);
+}
+
+void text_buffer::remove_text(unsigned offset, unsigned len) {
+    m_string.erase(offset, len);
 }
 
 void text_buffer::clear() {
@@ -50,7 +60,8 @@ std::vector<shaped_glyph> text_buffer::shape(font &font, int x_base, int y_base)
         auto pos_x = (cursor_x + x_offset + glyph.bearing_x) / 64.0;
         auto pos_y = (cursor_y + y_offset - glyph.bearing_y) / 64.0;
 
-        result.emplace_back(cluster_idx, codepoint, (int) pos_x, (int) pos_y, glyph.width, glyph.height, glyph.sprite);
+        result.emplace_back(cluster_idx, codepoint, (int) pos_x, (int) pos_y, glyph.width, glyph.height, x_advance / 64,
+                            glyph.sprite);
 
         cursor_x += x_advance;
         cursor_y += y_advance;
@@ -66,4 +77,5 @@ void text_buffer::reset_hb() {
     hb_buffer_set_language(m_buffer, hb_language_from_string("en", -1));
     hb_buffer_add_utf8(m_buffer, m_string.c_str(), (int) m_string.length(), 0, -1);
 }
+
 

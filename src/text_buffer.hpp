@@ -17,6 +17,7 @@ struct shaped_glyph {
     int pos_y;
     unsigned width;
     unsigned height;
+    unsigned advance;
     atlas_sprite sprite;
 };
 
@@ -30,13 +31,17 @@ public:
 
     ~text_buffer();
 
-    void add_text(const std::string &data);
+    void add_text(const std::string &data, unsigned offset);
 
-    void add_char(char data);
+    void add_char(char data, unsigned offset);
+
+    void remove_text(unsigned offset, unsigned len);
 
     void clear();
 
     std::vector<shaped_glyph> shape(font &font, int x_base = 0, int y_base = 0);
+
+    [[nodiscard]] inline char at(unsigned offset) const { return m_string[offset]; };
 
 private:
     void reset_hb();
