@@ -34,6 +34,8 @@ public:
 
     unsigned find_one_of(const std::set<char> &c, unsigned pos_x, unsigned pos_y, int direction);
 
+    [[nodiscard]] unsigned get_char_pos(unsigned cursor_pos_x, unsigned line_idx = 0);
+
     [[nodiscard]] unsigned get_cursor_pos(unsigned char_pos_x, unsigned char_pos_y = 0);
 
     [[nodiscard]] inline size_t length() const { return m_length; };

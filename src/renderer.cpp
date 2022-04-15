@@ -26,6 +26,7 @@ float get_scale(GLFWwindow *window) {
 }
 
 renderer::renderer(GLFWwindow *window) : m_window(window),
+                                         m_gui_scale(get_scale(window)),
                                          m_font(R"(/System/Library/Fonts/SFNSMono.ttf)", 15 * get_scale(window)),
                                          m_rect_mesh((GLfloat *) rect_vertices, sizeof(GLfloat) * 6 * 4) {
     glEnable(GL_BLEND);
@@ -89,7 +90,13 @@ void renderer::on_char_typed(char chr) {
 }
 
 void renderer::on_mouse_click() {
-
+    double click_x, click_y;
+    glfwGetCursorPos(m_window, &click_x, &click_y);
+    click_x *= m_gui_scale;
+    click_y *= m_gui_scale;
+    m_cursor_y = std::min((int)m_document.lines().size()-1, (int)floor(click_y / m_font.line_height()));
+    m_cursor_x = m_document.get_char_pos((int)click_x, m_cursor_y);
+    normalize_cursor_pos();
 }
 
 void renderer::on_key_press(int key, int mods) {
@@ -150,6 +157,10 @@ void renderer::on_key_press(int key, int mods) {
         if (m_cursor_y > 0) m_cursor_y--;
     }
 
+    normalize_cursor_pos();
+}
+
+void renderer::normalize_cursor_pos() {
     if (m_cursor_y >= m_document.lines().size()) m_cursor_y = m_document.lines().size() - 1;
     if (m_cursor_x > current_line()->buffer.size()) m_cursor_x = current_line()->buffer.size();
 }

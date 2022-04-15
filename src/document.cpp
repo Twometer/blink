@@ -48,6 +48,19 @@ void document::shape(font &font) {
     }
 }
 
+unsigned document::get_char_pos(unsigned int cursor_pos_x, unsigned int line_idx) {
+    if (cursor_pos_x == 0) return 0;
+    auto &line = m_lines[line_idx];
+
+    for (auto &glyph : line->glyphs) {
+        if (glyph.pos_x + glyph.advance / 2 >= cursor_pos_x) {
+            return glyph.cluster_idx;
+        }
+    }
+    auto &last_glyph = line->glyphs[line->glyphs.size() - 1];
+    return last_glyph.cluster_idx + 1;
+}
+
 unsigned document::get_cursor_pos(unsigned char_pos_x, unsigned char_pos_y) {
     if (char_pos_x == 0) return 0;
 
@@ -73,7 +86,9 @@ unsigned document::find_one_of(const std::set<char> &c, unsigned int pos_x, unsi
 }
 
 document::~document() {
-    for (auto line : lines()) {
+    for (auto line: lines()) {
         delete line;
     }
 }
+
+

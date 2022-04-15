@@ -25,6 +25,7 @@ private:
     unsigned m_cursor_x = 0;
     unsigned m_cursor_y = 0;
     fps_manager m_fps_manager{};
+    double m_gui_scale = 0;
 
 public:
     explicit renderer(GLFWwindow *window);
@@ -41,6 +42,8 @@ public:
 
 private:
     [[nodiscard]] line* current_line() const { return m_document.lines()[m_cursor_y]; }
+
+    void normalize_cursor_pos();
 };
 
 
