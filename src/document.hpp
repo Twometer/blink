@@ -11,7 +11,7 @@
 struct line {
     text_buffer buffer{};
     std::vector<shaped_glyph> glyphs;
-    bool dirty = false;
+    bool dirty = true;
 };
 
 class document {
@@ -29,6 +29,10 @@ public:
     void remove(unsigned pos_x, unsigned pos_y = 0, unsigned len = 1);
 
     void insert_line(unsigned pos_y);
+
+    void insert_split_line(unsigned pos_x, unsigned pos_y);
+
+    void erase_line(unsigned pos_y);
 
     void shape(font &font);
 

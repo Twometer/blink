@@ -94,8 +94,8 @@ void renderer::on_mouse_click() {
     glfwGetCursorPos(m_window, &click_x, &click_y);
     click_x *= m_gui_scale;
     click_y *= m_gui_scale;
-    m_cursor_y = std::min((int)m_document.lines().size()-1, (int)floor(click_y / m_font.line_height()));
-    m_cursor_x = m_document.get_char_pos((int)click_x, m_cursor_y);
+    m_cursor_y = std::min((int) m_document.lines().size() - 1, (int) floor(click_y / m_font.line_height()));
+    m_cursor_x = m_document.get_char_pos((int) click_x, m_cursor_y);
     normalize_cursor_pos();
 }
 
@@ -130,6 +130,13 @@ void renderer::on_key_press(int key, int mods) {
         } else if (m_cursor_x > 0) {
             m_cursor_x--;
             m_document.remove(m_cursor_x, m_cursor_y);
+        } else if (m_cursor_x == 0 && m_cursor_y > 0) {
+            m_cursor_y--;
+            m_cursor_x = current_line()->buffer.size();
+
+            auto erased_line = m_document.lines()[m_cursor_y + 1];
+            m_document.insert(erased_line->buffer.data(), current_line()->buffer.size(), m_cursor_y);
+            m_document.erase_line(m_cursor_y + 1);
         }
     } else if (key == GLFW_KEY_DELETE) {
         if (mods & GLFW_MOD_CONTROL) {
@@ -149,8 +156,9 @@ void renderer::on_key_press(int key, int mods) {
         }
         m_cursor_x = current_line()->buffer.size();
     } else if (key == GLFW_KEY_ENTER) {
+        m_document.insert_split_line(m_cursor_x, m_cursor_y);
         m_cursor_y++;
-        m_document.insert_line(m_cursor_y);
+        m_cursor_x = 0;
     } else if (key == GLFW_KEY_DOWN) {
         m_cursor_y++;
     } else if (key == GLFW_KEY_UP) {

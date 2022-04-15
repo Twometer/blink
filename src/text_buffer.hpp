@@ -37,6 +37,8 @@ public:
 
     void remove_text(unsigned offset, unsigned len);
 
+    std::string remove_text_and_get(unsigned offset, unsigned len);
+
     void clear();
 
     std::vector<shaped_glyph> shape(font &font, int x_base = 0, int y_base = 0);
@@ -44,6 +46,8 @@ public:
     [[nodiscard]] inline size_t size() const { return m_string.size(); };
 
     [[nodiscard]] inline char at(unsigned offset) const { return m_string[offset]; };
+
+    [[nodiscard]] inline const std::string &data() const { return m_string; }
 
 private:
     void reset_hb();

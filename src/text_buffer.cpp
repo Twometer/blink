@@ -31,6 +31,12 @@ void text_buffer::remove_text(unsigned offset, unsigned len) {
     m_string.erase(offset, len);
 }
 
+std::string text_buffer::remove_text_and_get(unsigned int offset, unsigned int len) {
+    auto erased = m_string.substr(offset, len);
+    remove_text(offset, len);
+    return erased;
+}
+
 void text_buffer::clear() {
     m_string.clear();
 }
@@ -80,6 +86,8 @@ void text_buffer::reset_hb() {
     hb_buffer_set_language(m_buffer, hb_language_from_string("en", -1));
     hb_buffer_add_utf8(m_buffer, m_string.c_str(), (int) m_string.length(), 0, -1);
 }
+
+
 
 
 

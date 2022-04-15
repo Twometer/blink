@@ -52,7 +52,7 @@ unsigned document::get_char_pos(unsigned int cursor_pos_x, unsigned int line_idx
     if (cursor_pos_x == 0) return 0;
     auto &line = m_lines[line_idx];
 
-    for (auto &glyph : line->glyphs) {
+    for (auto &glyph: line->glyphs) {
         if (glyph.pos_x + glyph.advance / 2 >= cursor_pos_x) {
             return glyph.cluster_idx;
         }
@@ -89,6 +89,21 @@ document::~document() {
     for (auto line: lines()) {
         delete line;
     }
+}
+
+void document::insert_split_line(unsigned int pos_x, unsigned int pos_y) {
+    auto line = m_lines[pos_y];
+    line->dirty = true;
+    auto removed = line->buffer.remove_text_and_get(pos_x, line->buffer.size() - pos_x);
+    insert_line(pos_y + 1);
+    m_lines[pos_y + 1]->buffer.add_text(removed, 0);
+}
+
+void document::erase_line(unsigned int pos_y) {
+    auto erased = m_lines[pos_y];
+    m_lines.erase(m_lines.begin() + pos_y);
+    delete erased;
+
 }
 
 
