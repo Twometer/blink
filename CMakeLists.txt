@@ -10,7 +10,7 @@ set(HB_SOURCES
         lib/harfbuzz/src/harfbuzz.cc)
 
 set(BLINK_SOURCES
-        src/main.cpp src/shader_src.hpp src/loader.cpp src/loader.hpp src/shader.cpp src/shader.hpp src/font.cpp src/font.hpp src/freetype.cpp src/freetype.hpp src/atlas.cpp src/atlas.hpp src/main.cpp src/renderer.cpp src/renderer.hpp src/text_buffer.cpp src/text_buffer.hpp src/document.cpp src/document.hpp src/mesh.cpp src/mesh.hpp src/fps_manager.cpp src/fps_manager.hpp)
+        src/main.cpp src/shader_src.hpp src/loader.cpp src/loader.hpp src/shader.cpp src/shader.hpp src/font.cpp src/font.hpp src/freetype.cpp src/freetype.hpp src/atlas.cpp src/atlas.hpp src/main.cpp src/renderer.cpp src/renderer.hpp src/text_buffer.cpp src/text_buffer.hpp src/document.cpp src/document.hpp src/mesh.cpp src/mesh.hpp src/fps_manager.cpp src/fps_manager.hpp src/selection.cpp src/selection.hpp)
 
 add_subdirectory(lib/glfw)
 
