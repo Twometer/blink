@@ -12,6 +12,7 @@
 #include "text_buffer.hpp"
 #include "document.hpp"
 #include "mesh.hpp"
+#include "fps_manager.hpp"
 
 class renderer {
 private:
@@ -23,6 +24,7 @@ private:
     mesh m_rect_mesh;
     unsigned m_cursor_x = 0;
     unsigned m_cursor_y = 0;
+    fps_manager m_fps_manager{};
 
 public:
     explicit renderer(GLFWwindow *window);
