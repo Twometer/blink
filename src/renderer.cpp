@@ -40,6 +40,7 @@ renderer::renderer(GLFWwindow *window) : m_window(window),
     m_glyph_shader = loader::load_shader(SHADER_RECT_VERT, SHADER_GLYPH_FRAG);
     m_cursor_shader = loader::load_shader(SHADER_RECT_VERT, SHADER_CURSOR_FRAG);
     m_cursor.x += m_document.insert("v ==> v || 'Hello, world!';", m_cursor);
+    m_selection.set_to(m_cursor);
 }
 
 renderer::~renderer() = default;
@@ -65,13 +66,15 @@ void renderer::on_draw_frame() {
     auto begin = m_selection.begin();
     auto end = m_selection.end();
     for (unsigned i = begin.y; i <= end.y; i++) {
+        unsigned line_len = m_document.lines()[i]->length();
         unsigned start_x = i == begin.y ? begin.x : 0;
-        unsigned end_x = i == end.y ? end.x : m_document.lines()[i]->length();
+        unsigned end_x = i == end.y ? end.x : line_len;
         unsigned start_x_px = m_document.get_pixel_pos({start_x, i});
         unsigned end_x_px = m_document.get_pixel_pos({end_x, i});
+        unsigned width = end_x_px - start_x_px;
+        if (line_len == 0 && i != end.y) width = 5;
         m_cursor_shader->set("pos_rect",
-                             glm::vec4(start_x_px, i * m_font.line_height(), end_x_px - start_x_px,
-                                       m_font.line_height()));
+                             glm::vec4(start_x_px, i * m_font.line_height(), width, m_font.line_height()));
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
@@ -113,7 +116,13 @@ void renderer::on_draw_frame() {
 }
 
 void renderer::on_char_typed(char32_t chr) {
+    if (!m_selection.empty()) {
+        m_document.remove_range(m_selection);
+        m_selection.collapse_begin();
+        m_cursor = m_selection.begin();
+    }
     m_cursor.x += m_document.insert(chr, m_cursor);
+    m_selection.set_to(m_cursor);
 }
 
 static const std::set<char32_t> delimiters{' ', '.', '#', '\'', '"', ';', ':', '[', ']', '{', '}', '<', '>'};
@@ -122,7 +131,10 @@ void renderer::on_mouse_button(int action) {
     auto pos = mouse_pos();
     if (action == GLFW_PRESS) {
         m_cursor = pos;
-        m_selection.set_to(pos);
+        if (glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            m_selection.set_pos1(pos);
+        else
+            m_selection.set_to(pos);
 
         auto now = glfwGetTime();
         if (now - m_last_press < 0.2) {
@@ -140,12 +152,12 @@ void renderer::on_mouse_move() {
     if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
         auto pos = mouse_pos();
         m_cursor = pos;
-        m_selection.set_pos2(pos);
+        m_selection.set_pos1(pos);
     }
 }
 
 void renderer::on_key_press(int key, int mods) {
-    m_selection.reset();
+    bool any_key = false;
     if (key == GLFW_KEY_LEFT) {
         if (mods & GLFW_MOD_CONTROL && m_cursor.x > 0) {
             m_cursor.x = m_document.find_one_of(delimiters, m_cursor, -1);
@@ -157,6 +169,7 @@ void renderer::on_key_press(int key, int mods) {
                 m_cursor.x--;
             }
         }
+        any_key = true;
     } else if (key == GLFW_KEY_RIGHT) {
         if (mods & GLFW_MOD_CONTROL && m_cursor.x < current_line()->length()) {
             m_cursor.x = m_document.find_one_of(delimiters, m_cursor, 1);
@@ -167,8 +180,13 @@ void renderer::on_key_press(int key, int mods) {
                 m_cursor.x = 0;
             }
         }
+        any_key = true;
     } else if (key == GLFW_KEY_BACKSPACE) {
-        if (mods & GLFW_MOD_CONTROL) {
+        if (!m_selection.empty()) {
+            m_document.remove_range(m_selection);
+            m_selection.collapse_begin();
+            m_cursor = m_selection.begin();
+        } else if (mods & GLFW_MOD_CONTROL) {
             unsigned dst = m_document.find_one_of(delimiters, m_cursor, -1);
             unsigned len = m_cursor.x - dst;
             m_document.remove({m_cursor.x - len, m_cursor.y}, len);
@@ -183,8 +201,13 @@ void renderer::on_key_press(int key, int mods) {
             m_document.insert(erased_line->buffer.data(), {(unsigned) current_line()->length(), m_cursor.y});
             m_document.erase_line(m_cursor.y + 1);
         }
+        any_key = true;
     } else if (key == GLFW_KEY_DELETE) {
-        if (mods & GLFW_MOD_CONTROL) {
+        if (!m_selection.empty()) {
+            m_document.remove_range(m_selection);
+            m_selection.collapse_begin();
+            m_cursor = m_selection.begin();
+        } else if (mods & GLFW_MOD_CONTROL) {
             unsigned dst = m_document.find_one_of(delimiters, m_cursor, 1);
             m_document.remove(m_cursor, dst - m_cursor.x);
         } else if (mods & GLFW_MOD_SHIFT) {
@@ -192,34 +215,45 @@ void renderer::on_key_press(int key, int mods) {
         } else {
             m_document.remove(m_cursor);
         }
+        any_key = true;
     } else if (key == GLFW_KEY_HOME) {
         m_cursor.x = 0;
         if (mods & GLFW_MOD_CONTROL) {
             m_cursor.y = 0;
         }
+        any_key = true;
     } else if (key == GLFW_KEY_END) {
         if (mods & GLFW_MOD_CONTROL) {
             m_cursor.y = m_document.lines().size() - 1;
         }
         m_cursor.x = current_line()->length();
-    } else if (key == GLFW_KEY_ENTER) {
+        any_key = true;
+    } else if (key == GLFW_KEY_ENTER || key == GLFW_KEY_KP_ENTER) {
         m_document.insert_split_line(m_cursor);
         m_cursor.y++;
         m_cursor.x = 0;
+        any_key = true;
     } else if (key == GLFW_KEY_DOWN) {
         m_cursor.y++;
+        any_key = true;
     } else if (key == GLFW_KEY_UP) {
         if (m_cursor.y > 0) m_cursor.y--;
+        any_key = true;
     } else if (key == GLFW_KEY_V && mods & GLFW_MOD_CONTROL) {
         const char *cb = glfwGetClipboardString(m_window);
         m_cursor.x += m_document.insert(cb, m_cursor);
+        any_key = true;
     } else if (key == GLFW_KEY_TAB) {
         auto num = 4 - (m_cursor.x % 4);
         for (int i = 0; i < num; i++)
             m_cursor.x += m_document.insert(" ", m_cursor);
+        any_key = true;
     }
 
-    normalize_cursor_pos();
+    if (any_key) {
+        normalize_cursor_pos();
+        update_selection(mods);
+    }
 }
 
 void renderer::normalize_cursor_pos() {
@@ -240,5 +274,11 @@ cursor_pos renderer::mouse_pos() const {
             m_document.get_cursor_pos((int) click_x, m_cursor.y),
             std::min((unsigned) m_document.lines().size() - 1, (unsigned) floor(click_y / m_font.line_height()))
     };
+}
+
+void renderer::update_selection(int mods) {
+    if (mods & GLFW_MOD_SHIFT) {
+        m_selection.set_pos1(m_cursor);
+    } else m_selection.set_to(m_cursor);
 }
 

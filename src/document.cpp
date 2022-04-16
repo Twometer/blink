@@ -117,3 +117,23 @@ void document::erase_line(unsigned int pos_y) {
     m_lines.erase(m_lines.begin() + pos_y);
     delete erased;
 }
+
+void document::remove_range(range range) {
+    auto begin = range.begin();
+    auto end = range.end();
+    auto begin_line = m_lines[begin.y];
+    auto end_line = m_lines[end.y];
+    if (begin.y == end.y) {
+        begin_line->buffer.remove_text(begin.x, end.x - begin.x);
+        begin_line->dirty = true;
+    } else {
+        begin_line->buffer.remove_text(begin.x, begin_line->length() - begin.x);
+        end_line->buffer.remove_text(0, end.x);
+        begin_line->buffer.add_text(end_line->buffer.data(), begin_line->length());
+        for (int i = 0; i < end.y - begin.y; i++) {
+            erase_line(begin.y + 1);
+        }
+        begin_line->dirty = true;
+        end_line->dirty = true;
+    }
+}

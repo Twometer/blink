@@ -8,6 +8,7 @@
 #include <set>
 #include "text_buffer.hpp"
 #include "cursor.hpp"
+#include "range.hpp"
 
 struct line {
     text_buffer buffer{};
@@ -36,6 +37,8 @@ public:
 
     void remove(cursor_pos pos, unsigned len = 1);
 
+    void remove_range(range range);
+
     void insert_line(unsigned pos_y);
 
     void insert_split_line(cursor_pos pos);
@@ -44,7 +47,7 @@ public:
 
     void shape(font &font);
 
-    unsigned find_one_of(const std::set<char32_t> &c, cursor_pos pos, int direction) const;
+    [[nodiscard]] unsigned find_one_of(const std::set<char32_t> &c, cursor_pos pos, int direction) const;
 
     [[nodiscard]] unsigned get_cursor_pos(unsigned pixels_x, unsigned line_idx) const;
 

@@ -50,6 +50,8 @@ private:
     [[nodiscard]] cursor_pos mouse_pos() const;
 
     void normalize_cursor_pos();
+
+    void update_selection(int mods);
 };
 
 

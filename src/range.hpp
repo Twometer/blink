@@ -27,6 +27,8 @@ public:
 
     [[nodiscard]] inline const cursor_pos &end() const { return m_pos1 < m_pos2 ? m_pos2 : m_pos1; };
 
+    [[nodiscard]] inline bool empty() const { return m_pos1 == m_pos2; };
+
     inline void set_pos1(cursor_pos pos) { m_pos1 = pos; };
 
     inline void set_pos2(cursor_pos pos) { m_pos2 = pos; };
