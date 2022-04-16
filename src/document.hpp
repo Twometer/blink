@@ -62,6 +62,8 @@ public:
     [[nodiscard]] inline size_t length() const { return m_length; };
 
     [[nodiscard]] inline const std::vector<line *> &lines() const { return m_lines; };
+
+    [[nodiscard]] inline size_t num_lines() const { return m_lines.size(); };
 };
 
 

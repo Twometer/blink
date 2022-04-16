@@ -41,8 +41,7 @@ void mouse_cb(GLFWwindow *, double, double) {
 }
 
 void click_cb(GLFWwindow *, int button, int action, int) {
-    if (button == GLFW_MOUSE_BUTTON_1)
-        the_renderer->on_mouse_button(action);
+    the_renderer->on_mouse_button(button, action);
 }
 
 void char_cb(GLFWwindow *window, unsigned codepoint) {
@@ -56,16 +55,17 @@ void key_cb(GLFWwindow *, int key, int scancode, int action, int mods) {
 }
 
 int main() {
-    auto window = create_window();
-    glfwSetWindowRefreshCallback(window, draw_frame);
-    glfwSetCharCallback(window, char_cb);
-    glfwSetKeyCallback(window, key_cb);
-    glfwSetMouseButtonCallback(window, click_cb);
-    glfwSetCursorPosCallback(window, mouse_cb);
+    auto glfw_window = create_window();
+    glfwSetWindowRefreshCallback(glfw_window, draw_frame);
+    glfwSetCharCallback(glfw_window, char_cb);
+    glfwSetKeyCallback(glfw_window, key_cb);
+    glfwSetMouseButtonCallback(glfw_window, click_cb);
+    glfwSetCursorPosCallback(glfw_window, mouse_cb);
 
-    the_renderer = new renderer(window);
-    while (!glfwWindowShouldClose(window)) {
-        draw_frame(window);
+    window win(glfw_window);
+    the_renderer = new renderer(win);
+    while (!glfwWindowShouldClose(glfw_window)) {
+        draw_frame(glfw_window);
         glfwPollEvents();
     }
     delete the_renderer;

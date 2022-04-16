@@ -14,8 +14,14 @@ mesh::mesh(GLfloat *vertex_data, GLsizeiptr length) {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
     glBindVertexArray(0);
+
+    m_num_tris = (GLsizei)(length / 4);
 }
 
 void mesh::bind() const {
     glBindVertexArray(m_vao);
+}
+
+void mesh::draw() const {
+    glDrawArrays(GL_TRIANGLES, 0, m_num_tris);
 }

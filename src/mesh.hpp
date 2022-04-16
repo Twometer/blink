@@ -11,11 +11,14 @@ class mesh {
 private:
     GLuint m_vao = 0;
     GLuint m_vbo = 0;
+    GLsizei m_num_tris;
 
 public:
     mesh(GLfloat *vertex_data, GLsizeiptr length);
 
     void bind() const;
+
+    void draw() const;
 };
 
 

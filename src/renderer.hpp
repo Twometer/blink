@@ -14,24 +14,24 @@
 #include "mesh.hpp"
 #include "fps_manager.hpp"
 #include "range.hpp"
+#include "editor.hpp"
 
 class renderer {
 private:
-    GLFWwindow *m_window;
+    const window &m_window;
+
+    render_context m_render_context{};
+    fps_manager m_fps_manager{};
     shader *m_glyph_shader;
     shader *m_cursor_shader;
     shader *m_rect_shader;
-    font m_font;
-    mesh m_rect_mesh;
-    fps_manager m_fps_manager{};
-    double m_gui_scale = 0;
-    document m_document{};
-    range m_selection{};
-    cursor_pos m_cursor{};
-    double m_last_press = 0;
+    mesh *m_rect_mesh;
+
+    font *m_font;
+    editor *m_editor;
 
 public:
-    explicit renderer(GLFWwindow *window);
+    explicit renderer(const window &window);
 
     ~renderer();
 
@@ -39,22 +39,11 @@ public:
 
     void on_char_typed(char32_t chr);
 
-    void on_mouse_button(int action);
+    void on_mouse_button(int button, int action);
 
     void on_mouse_move();
 
     void on_key_press(int key, int mods);
-
-private:
-    [[nodiscard]] line *current_line() const { return m_document.lines()[m_cursor.y]; }
-
-    [[nodiscard]] cursor_pos mouse_pos() const;
-
-    void normalize_cursor_pos();
-
-    void normalize_selection();
-
-    void update_selection(int mods);
 };
 
 
