@@ -24,3 +24,8 @@ void range::set_to(cursor_pos pos) {
 void range::reset() {
     set_to({0, 0});
 }
+
+void range::limit_y(unsigned max_y) {
+    if (m_pos1.y > max_y) m_pos1.y = max_y;
+    if (m_pos2.y > max_y) m_pos2.y = max_y;
+}

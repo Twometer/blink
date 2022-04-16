@@ -21,7 +21,7 @@ unsigned document::insert(const std::string &data, cursor_pos pos) {
 }
 
 unsigned document::insert(char32_t c, cursor_pos pos) {
-    if (m_lines.empty()) insert_line(0);
+    ensure_lines();
 
     auto &line = m_lines[pos.y];
 
@@ -136,4 +136,8 @@ void document::remove_range(range range) {
         begin_line->dirty = true;
         end_line->dirty = true;
     }
+}
+
+void document::ensure_lines() {
+    if (m_lines.empty()) insert_line(0);
 }

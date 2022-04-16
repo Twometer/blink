@@ -251,6 +251,7 @@ void renderer::on_key_press(int key, int mods) {
     }
 
     if (any_key) {
+        m_document.ensure_lines();
         normalize_cursor_pos();
         update_selection(mods);
     }
@@ -280,5 +281,5 @@ void renderer::update_selection(int mods) {
     if (mods & GLFW_MOD_SHIFT) {
         m_selection.set_pos1(m_cursor);
     } else m_selection.set_to(m_cursor);
+    m_selection.limit_y(m_document.lines().size()-1);
 }
-

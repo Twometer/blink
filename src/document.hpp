@@ -47,6 +47,8 @@ public:
 
     void shape(font &font);
 
+    void ensure_lines();
+
     [[nodiscard]] unsigned find_one_of(const std::set<char32_t> &c, cursor_pos pos, int direction) const;
 
     [[nodiscard]] unsigned get_cursor_pos(unsigned pixels_x, unsigned line_idx) const;

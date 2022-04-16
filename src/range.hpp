@@ -32,6 +32,8 @@ public:
     inline void set_pos1(cursor_pos pos) { m_pos1 = pos; };
 
     inline void set_pos2(cursor_pos pos) { m_pos2 = pos; };
+
+    void limit_y(unsigned max_y);
 };
 
 
