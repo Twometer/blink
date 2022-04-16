@@ -52,7 +52,7 @@ void document::shape(font &font) {
     }
 }
 
-unsigned document::get_cursor_pos(unsigned pixels_x, unsigned line_idx) {
+unsigned document::get_cursor_pos(unsigned pixels_x, unsigned line_idx) const {
     if (pixels_x == 0) return 0;
     auto &line = m_lines[line_idx];
 
@@ -61,11 +61,14 @@ unsigned document::get_cursor_pos(unsigned pixels_x, unsigned line_idx) {
             return glyph.cluster_idx;
         }
     }
+
+    if (line->glyphs.empty()) return 0;
+
     auto &last_glyph = line->glyphs[line->glyphs.size() - 1];
     return last_glyph.cluster_idx + 1;
 }
 
-unsigned document::get_pixel_pos(cursor_pos pos) {
+unsigned document::get_pixel_pos(cursor_pos pos) const {
     if (pos.x == 0) return 0;
 
     auto &line = m_lines[pos.y];
@@ -75,11 +78,13 @@ unsigned document::get_pixel_pos(cursor_pos pos) {
             return glyph.pos_x;
     }
 
+    if (line->glyphs.empty()) return 0;
+
     auto &last_glyph = line->glyphs[line->glyphs.size() - 1];
     return last_glyph.pos_x + last_glyph.advance + 1;
 }
 
-unsigned document::find_one_of(const std::set<char32_t> &c, cursor_pos pos, int direction) {
+unsigned document::find_one_of(const std::set<char32_t> &c, cursor_pos pos, int direction) const {
     auto &buffer = m_lines[pos.y]->buffer;
     unsigned idx = pos.x + direction;
     while (idx >= 0 && idx < buffer.length()) {

@@ -44,11 +44,11 @@ public:
 
     void shape(font &font);
 
-    unsigned find_one_of(const std::set<char32_t> &c, cursor_pos pos, int direction);
+    unsigned find_one_of(const std::set<char32_t> &c, cursor_pos pos, int direction) const;
 
-    [[nodiscard]] unsigned get_cursor_pos(unsigned pixels_x, unsigned line_idx);
+    [[nodiscard]] unsigned get_cursor_pos(unsigned pixels_x, unsigned line_idx) const;
 
-    [[nodiscard]] unsigned get_pixel_pos(cursor_pos cursor);
+    [[nodiscard]] unsigned get_pixel_pos(cursor_pos cursor) const;
 
     [[nodiscard]] inline size_t length() const { return m_length; };
 

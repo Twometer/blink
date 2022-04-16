@@ -58,6 +58,24 @@ void renderer::on_draw_frame() {
 
 
     auto matrix = glm::ortho(0.0f, (float) w, (float) h, 0.0f);
+
+    // selection
+    m_cursor_shader->bind();
+    m_cursor_shader->set("time", 0.1f);
+    auto begin = m_selection.begin();
+    auto end = m_selection.end();
+    for (unsigned i = begin.y; i <= end.y; i++) {
+        unsigned start_x = i == begin.y ? begin.x : 0;
+        unsigned end_x = i == end.y ? end.x : m_document.lines()[i]->length();
+        unsigned start_x_px = m_document.get_pixel_pos({start_x, i});
+        unsigned end_x_px = m_document.get_pixel_pos({end_x, i});
+        m_cursor_shader->set("pos_rect",
+                             glm::vec4(start_x_px, i * m_font.line_height(), end_x_px - start_x_px,
+                                       m_font.line_height()));
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+    }
+
+    // text
     m_glyph_shader->bind();
     m_glyph_shader->set("mvp_matrix", matrix);
     m_glyph_shader->set("time", (float) glfwGetTime());
@@ -70,15 +88,19 @@ void renderer::on_draw_frame() {
 
     m_document.shape(m_font);
     unsigned pos_y = 0;
+    unsigned line_idx = 0;
     for (auto &line: m_document.lines()) {
         for (auto &glyph: line->glyphs) {
+            m_glyph_shader->bind();
             m_glyph_shader->set("pos_rect", glm::vec4(glyph.pos_x, glyph.pos_y + pos_y, glyph.width, glyph.height));
             m_glyph_shader->set("tex_rect", glm::vec4(glyph.sprite.u, glyph.sprite.v, glyph.sprite.w, glyph.sprite.h));
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
+        line_idx++;
         pos_y += m_font.line_height();
     }
 
+    // cursor
     m_cursor_shader->bind();
     m_cursor_shader->set("mvp_matrix", matrix);
     m_cursor_shader->set("time", (float) glfwGetTime());
@@ -94,18 +116,36 @@ void renderer::on_char_typed(char32_t chr) {
     m_cursor.x += m_document.insert(chr, m_cursor);
 }
 
-void renderer::on_mouse_click() {
-    double click_x, click_y;
-    glfwGetCursorPos(m_window, &click_x, &click_y);
-    click_x *= m_gui_scale;
-    click_y *= m_gui_scale;
-    m_cursor.y = std::min((int) m_document.lines().size() - 1, (int) floor(click_y / m_font.line_height()));
-    m_cursor.x = m_document.get_cursor_pos((int) click_x, m_cursor.y);
-    normalize_cursor_pos();
+static const std::set<char32_t> delimiters{' ', '.', '#', '\'', '"', ';', ':', '[', ']', '{', '}', '<', '>'};
+
+void renderer::on_mouse_button(int action) {
+    auto pos = mouse_pos();
+    if (action == GLFW_PRESS) {
+        m_cursor = pos;
+        m_selection.set_to(pos);
+
+        auto now = glfwGetTime();
+        if (now - m_last_press < 0.2) {
+            auto beg = m_document.find_one_of(delimiters, m_cursor, -1);
+            auto end = m_document.find_one_of(delimiters, m_cursor, 1);
+            m_selection.set_pos1({beg, m_cursor.y});
+            m_selection.set_pos2({end, m_cursor.y});
+            m_cursor.x = end;
+        }
+        m_last_press = now;
+    }
+}
+
+void renderer::on_mouse_move() {
+    if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
+        auto pos = mouse_pos();
+        m_cursor = pos;
+        m_selection.set_pos2(pos);
+    }
 }
 
 void renderer::on_key_press(int key, int mods) {
-    static const std::set<char32_t> delimiters{' ', '.', '#', '\'', '"', ';', ':', '[', ']', '{', '}', '<', '>'};
+    m_selection.reset();
     if (key == GLFW_KEY_LEFT) {
         if (mods & GLFW_MOD_CONTROL && m_cursor.x > 0) {
             m_cursor.x = m_document.find_one_of(delimiters, m_cursor, -1);
@@ -186,3 +226,19 @@ void renderer::normalize_cursor_pos() {
     if (m_cursor.y >= m_document.lines().size()) m_cursor.y = m_document.lines().size() - 1;
     if (m_cursor.x > current_line()->length()) m_cursor.x = current_line()->length();
 }
+
+cursor_pos renderer::mouse_pos() const {
+    double click_x, click_y;
+    glfwGetCursorPos(m_window, &click_x, &click_y);
+    click_x *= m_gui_scale;
+    click_y *= m_gui_scale;
+
+    if (click_x < 0) click_x = 0;
+    if (click_y < 0) click_y = 0;
+
+    return {
+            m_document.get_cursor_pos((int) click_x, m_cursor.y),
+            std::min((unsigned) m_document.lines().size() - 1, (unsigned) floor(click_y / m_font.line_height()))
+    };
+}
+

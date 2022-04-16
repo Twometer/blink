@@ -36,9 +36,13 @@ void draw_frame(GLFWwindow *window) {
     glfwSwapBuffers(window);
 }
 
+void mouse_cb(GLFWwindow *, double, double) {
+    the_renderer->on_mouse_move();
+}
+
 void click_cb(GLFWwindow *, int button, int action, int) {
-    if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS)
-        the_renderer->on_mouse_click();
+    if (button == GLFW_MOUSE_BUTTON_1)
+        the_renderer->on_mouse_button(action);
 }
 
 void char_cb(GLFWwindow *window, unsigned codepoint) {
@@ -57,6 +61,7 @@ int main() {
     glfwSetCharCallback(window, char_cb);
     glfwSetKeyCallback(window, key_cb);
     glfwSetMouseButtonCallback(window, click_cb);
+    glfwSetCursorPosCallback(window, mouse_cb);
 
     the_renderer = new renderer(window);
     while (!glfwWindowShouldClose(window)) {

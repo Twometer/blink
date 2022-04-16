@@ -13,7 +13,7 @@
 #include "document.hpp"
 #include "mesh.hpp"
 #include "fps_manager.hpp"
-#include "selection.hpp"
+#include "range.hpp"
 
 class renderer {
 private:
@@ -25,8 +25,9 @@ private:
     fps_manager m_fps_manager{};
     double m_gui_scale = 0;
     document m_document{};
-    selection m_selection{};
+    range m_selection{};
     cursor_pos m_cursor{};
+    double m_last_press = 0;
 
 public:
     explicit renderer(GLFWwindow *window);
@@ -37,12 +38,16 @@ public:
 
     void on_char_typed(char32_t chr);
 
-    void on_mouse_click();
+    void on_mouse_button(int action);
+
+    void on_mouse_move();
 
     void on_key_press(int key, int mods);
 
 private:
     [[nodiscard]] line *current_line() const { return m_document.lines()[m_cursor.y]; }
+
+    [[nodiscard]] cursor_pos mouse_pos() const;
 
     void normalize_cursor_pos();
 };
