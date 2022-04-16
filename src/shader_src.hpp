@@ -26,6 +26,18 @@ void main() {
 }
 )|";
 
+static const char* const SHADER_RECT_FRAG = R"|(
+#version 330 core
+
+uniform vec4 color;
+
+out vec4 fragColor;
+
+void main() {
+    fragColor = color;
+}
+)|";
+
 static const char* const SHADER_GLYPH_FRAG = R"|(
 #version 330 core
 

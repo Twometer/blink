@@ -3,6 +3,7 @@
 //
 
 #include "document.hpp"
+#include <codecvt>
 
 unsigned document::insert(const std::u32string &data, cursor_pos pos) {
     if (m_lines.empty()) insert_line(0);
@@ -140,4 +141,30 @@ void document::remove_range(range range) {
 
 void document::ensure_lines() {
     if (m_lines.empty()) insert_line(0);
+}
+
+std::u32string document::to_string(std::optional<range> range) {
+    std::u32string result;
+    if (range.has_value()) {
+        auto begin = range.value().begin();
+        auto end = range.value().end();
+        for (unsigned i = begin.y; i <= end.y; i++) {
+            unsigned line_len = m_lines[i]->length();
+            unsigned start_x = i == begin.y ? begin.x : 0;
+            unsigned end_x = i == end.y ? end.x : line_len;
+            result += m_lines[i]->buffer.data().substr(start_x, end_x - start_x);
+            result += '\n';
+        }
+    } else {
+        for (auto &line: m_lines) {
+            result += line->buffer.data();
+            result += '\n';
+        }
+    }
+    return result;
+}
+
+std::string document::to_utf8_string(std::optional<range> range) {
+    std::wstring_convert<std::codecvt<char32_t, char, std::mbstate_t>, char32_t> convert32;
+    return convert32.to_bytes(to_string(range));
 }

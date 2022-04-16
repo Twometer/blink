@@ -49,6 +49,10 @@ public:
 
     void ensure_lines();
 
+    std::u32string to_string(std::optional<range> range = {});
+
+    std::string to_utf8_string(std::optional<range> range = {});
+
     [[nodiscard]] unsigned find_one_of(const std::set<char32_t> &c, cursor_pos pos, int direction) const;
 
     [[nodiscard]] unsigned get_cursor_pos(unsigned pixels_x, unsigned line_idx) const;

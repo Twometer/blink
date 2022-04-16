@@ -20,6 +20,7 @@ private:
     GLFWwindow *m_window;
     shader *m_glyph_shader;
     shader *m_cursor_shader;
+    shader *m_rect_shader;
     font m_font;
     mesh m_rect_mesh;
     fps_manager m_fps_manager{};
@@ -50,6 +51,8 @@ private:
     [[nodiscard]] cursor_pos mouse_pos() const;
 
     void normalize_cursor_pos();
+
+    void normalize_selection();
 
     void update_selection(int mods);
 };

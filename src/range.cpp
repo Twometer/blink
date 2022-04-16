@@ -29,3 +29,8 @@ void range::limit_y(unsigned max_y) {
     if (m_pos1.y > max_y) m_pos1.y = max_y;
     if (m_pos2.y > max_y) m_pos2.y = max_y;
 }
+
+void range::limit_x(unsigned int max_x) {
+    if (m_pos1.x > max_x) m_pos1.x = max_x;
+    if (m_pos2.x > max_x) m_pos2.x = max_x;
+}

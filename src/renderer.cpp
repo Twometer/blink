@@ -8,6 +8,7 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <iostream>
 
+
 const GLfloat rect_vertices[6][4] = {
         {0, 0, 0.0, 0.0},
         {0, 1, 0.0, 1.0},
@@ -37,6 +38,7 @@ renderer::renderer(GLFWwindow *window) : m_window(window),
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glClearColor(26.0 / 255.0, 27.0 / 255.0, 38.0 / 255.0, 1.0);
+    m_rect_shader = loader::load_shader(SHADER_RECT_VERT, SHADER_RECT_FRAG);
     m_glyph_shader = loader::load_shader(SHADER_RECT_VERT, SHADER_GLYPH_FRAG);
     m_cursor_shader = loader::load_shader(SHADER_RECT_VERT, SHADER_CURSOR_FRAG);
     m_cursor.x += m_document.insert("v ==> v || 'Hello, world!';", m_cursor);
@@ -61,8 +63,9 @@ void renderer::on_draw_frame() {
     auto matrix = glm::ortho(0.0f, (float) w, (float) h, 0.0f);
 
     // selection
-    m_cursor_shader->bind();
-    m_cursor_shader->set("time", 0.1f);
+    m_rect_shader->bind();
+    m_rect_shader->set("mvp_matrix", matrix);
+    m_rect_shader->set("color", glm::vec4(1.0, 1.0, 1.0, 0.15));
     auto begin = m_selection.begin();
     auto end = m_selection.end();
     for (unsigned i = begin.y; i <= end.y; i++) {
@@ -73,8 +76,8 @@ void renderer::on_draw_frame() {
         unsigned end_x_px = m_document.get_pixel_pos({end_x, i});
         unsigned width = end_x_px - start_x_px;
         if (line_len == 0 && i != end.y) width = 5;
-        m_cursor_shader->set("pos_rect",
-                             glm::vec4(start_x_px, i * m_font.line_height(), width, m_font.line_height()));
+        m_rect_shader->set("pos_rect",
+                           glm::vec4(start_x_px, i * m_font.line_height(), width, m_font.line_height()));
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
@@ -248,12 +251,29 @@ void renderer::on_key_press(int key, int mods) {
         for (int i = 0; i < num; i++)
             m_cursor.x += m_document.insert(" ", m_cursor);
         any_key = true;
+    } else if (key == GLFW_KEY_C && mods & GLFW_MOD_CONTROL && !m_selection.empty()) {
+        auto sel = m_document.to_utf8_string(m_selection);
+        glfwSetClipboardString(m_window, sel.c_str());
+    } else if (key == GLFW_KEY_A && mods & GLFW_MOD_CONTROL) {
+        m_selection.set_pos1({0, 0});
+        m_selection.set_pos2({UINT32_MAX, UINT32_MAX});
+        normalize_selection();
+        m_cursor = m_selection.end();
+    } else if (key == GLFW_KEY_X && mods & GLFW_MOD_CONTROL) {
+        auto sel = m_document.to_utf8_string(m_selection);
+        glfwSetClipboardString(m_window, sel.c_str());
+
+        m_document.remove_range(m_selection);
+        m_selection.collapse_begin();
+        m_cursor = m_selection.begin();
+        any_key = true;
     }
 
     if (any_key) {
         m_document.ensure_lines();
         normalize_cursor_pos();
         update_selection(mods);
+        normalize_selection();
     }
 }
 
@@ -281,5 +301,9 @@ void renderer::update_selection(int mods) {
     if (mods & GLFW_MOD_SHIFT) {
         m_selection.set_pos1(m_cursor);
     } else m_selection.set_to(m_cursor);
-    m_selection.limit_y(m_document.lines().size()-1);
+}
+
+void renderer::normalize_selection() {
+    m_selection.limit_y(m_document.lines().size() - 1);
+    m_selection.limit_x(m_document.lines().back()->length());
 }
