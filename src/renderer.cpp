@@ -6,7 +6,6 @@
 #include "loader.hpp"
 #include "shader_src.hpp"
 #include <glm/ext/matrix_clip_space.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
 const GLfloat rect_vertices[6][4] = {
@@ -40,7 +39,7 @@ renderer::renderer(GLFWwindow *window) : m_window(window),
     glClearColor(26.0 / 255.0, 27.0 / 255.0, 38.0 / 255.0, 1.0);
     m_glyph_shader = loader::load_shader(SHADER_RECT_VERT, SHADER_GLYPH_FRAG);
     m_cursor_shader = loader::load_shader(SHADER_RECT_VERT, SHADER_CURSOR_FRAG);
-    //m_cursor_x += m_document.insert(std::u32string("v ==> v || 'Hello, world!';"));
+    m_cursor_x += m_document.insert("v ==> v || 'Hello, world!';");
 }
 
 renderer::~renderer() = default;
@@ -106,9 +105,9 @@ void renderer::on_mouse_click() {
 }
 
 void renderer::on_key_press(int key, int mods) {
-    static const std::set<char> delimiters{' ', '.', '#', '\'', '"', ';', ':', '[', ']', '{', '}', '<', '>'};
+    static const std::set<char32_t> delimiters{' ', '.', '#', '\'', '"', ';', ':', '[', ']', '{', '}', '<', '>'};
     if (key == GLFW_KEY_LEFT) {
-        if (mods & GLFW_MOD_CONTROL) {
+        if (mods & GLFW_MOD_CONTROL && m_cursor_x > 0) {
             m_cursor_x = m_document.find_one_of(delimiters, m_cursor_x, m_cursor_y, -1);
         } else {
             if (m_cursor_x == 0 && m_cursor_y > 0) {
@@ -119,7 +118,7 @@ void renderer::on_key_press(int key, int mods) {
             }
         }
     } else if (key == GLFW_KEY_RIGHT) {
-        if (mods & GLFW_MOD_CONTROL) {
+        if (mods & GLFW_MOD_CONTROL && m_cursor_x < current_line()->length()) {
             m_cursor_x = m_document.find_one_of(delimiters, m_cursor_x, m_cursor_y, 1);
         } else {
             m_cursor_x++;
@@ -148,6 +147,8 @@ void renderer::on_key_press(int key, int mods) {
         if (mods & GLFW_MOD_CONTROL) {
             unsigned dst = m_document.find_one_of(delimiters, m_cursor_x, m_cursor_y, 1);
             m_document.remove(m_cursor_x, m_cursor_y, dst - m_cursor_x);
+        } else if (mods & GLFW_MOD_SHIFT) {
+            m_document.erase_line(m_cursor_y);
         } else {
             m_document.remove(m_cursor_x, m_cursor_y);
         }
@@ -169,6 +170,13 @@ void renderer::on_key_press(int key, int mods) {
         m_cursor_y++;
     } else if (key == GLFW_KEY_UP) {
         if (m_cursor_y > 0) m_cursor_y--;
+    } else if (key == GLFW_KEY_V && mods & GLFW_MOD_CONTROL) {
+        const char *cb = glfwGetClipboardString(m_window);
+        m_cursor_x += m_document.insert(cb, m_cursor_x, m_cursor_y);
+    } else if (key == GLFW_KEY_TAB) {
+        auto num = 4 - (m_cursor_x % 4);
+        for (int i = 0; i < num; i++)
+            m_cursor_x += m_document.insert(" ", m_cursor_x, m_cursor_y);
     }
 
     normalize_cursor_pos();

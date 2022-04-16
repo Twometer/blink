@@ -16,6 +16,10 @@ unsigned document::insert(const std::u32string &data, unsigned pos_x, unsigned p
     return num_inserted;
 }
 
+unsigned document::insert(const std::string &data, unsigned int pos_x, unsigned int pos_y) {
+    return insert(std::u32string(data.begin(), data.end()), pos_x, pos_y);
+}
+
 unsigned document::insert(char32_t c, unsigned pos_x, unsigned pos_y) {
     if (m_lines.empty()) insert_line(0);
 
@@ -75,14 +79,14 @@ unsigned document::get_cursor_pos(unsigned char_pos_x, unsigned char_pos_y) {
     return last_glyph.pos_x + last_glyph.advance + 1;
 }
 
-unsigned document::find_one_of(const std::set<char> &c, unsigned int pos_x, unsigned int pos_y, int direction) {
+unsigned document::find_one_of(const std::set<char32_t> &c, unsigned int pos_x, unsigned int pos_y, int direction) {
     auto &buffer = m_lines[pos_y]->buffer;
     unsigned idx = pos_x + direction;
-    while (idx >= 0 && idx < m_length) {
+    while (idx >= 0 && idx < buffer.size()) {
         if (c.contains(buffer.at(idx))) return idx;
         idx += direction;
     }
-    return direction < 0 ? 0 : m_length;
+    return direction < 0 ? 0 : buffer.size();
 }
 
 document::document() {
@@ -109,5 +113,3 @@ void document::erase_line(unsigned int pos_y) {
     delete erased;
 
 }
-
-
