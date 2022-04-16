@@ -18,7 +18,7 @@ void editor::on_draw_frame() {
 
     auto size = m_window.get_size();
     auto matrix = glm::ortho(0.0f, (float) size.x, (float) size.y, 0.0f);
-
+    glViewport(0, 0, size.x, size.y);
     draw_selection(matrix);
     draw_text(matrix);
     draw_cursor(matrix);
@@ -33,7 +33,7 @@ void editor::on_char_typed(char32_t chr) {
 
 void editor::on_mouse_button(int button, int action) {
     if (!m_focused) return;
-    if (button != GLFW_MOUSE_BUTTON_1 && action != GLFW_PRESS) return;
+    if (button != GLFW_MOUSE_BUTTON_1 || action != GLFW_PRESS) return;
 
     m_cursor = mouse_pos();
     update_selection(m_window.is_mouse_button_down(GLFW_KEY_LEFT_SHIFT));
@@ -77,6 +77,8 @@ cursor_pos editor::mouse_pos() const {
     auto click = m_window.get_mouse_pos() * glm::vec2(m_gui_scale, m_gui_scale);
     if (click.x < 0) click.x = 0;
     if (click.y < 0) click.y = 0;
+    click.x -= m_theme.padding;
+    click.y -= m_theme.padding;
 
     return {
             m_document.get_cursor_pos((int) click.x, m_cursor.y),
@@ -117,7 +119,8 @@ void editor::draw_selection(glm::mat4 matrix) {
         unsigned width = end_x - start_x;
         if (line_len == 0 && i != end.y) width = 5;
 
-        auto line_rect = glm::vec4(start_x, i * m_font.line_height(), width, m_font.line_height());
+        auto line_rect = glm::vec4(start_x + m_theme.padding, i * m_font.line_height() + m_theme.padding, width,
+                                   m_font.line_height());
         shader->set("pos_rect", line_rect);
         m_ctx.rect_mesh->draw();
     }
@@ -134,7 +137,9 @@ void editor::draw_text(glm::mat4 matrix) {
     unsigned line_idx = 0;
     for (auto &line: m_document.lines()) {
         for (auto &glyph: line->glyphs) {
-            shader->set("pos_rect", glm::vec4(glyph.pos_x, glyph.pos_y + pos_y, glyph.width, glyph.height));
+            shader->set("pos_rect",
+                        glm::vec4(glyph.pos_x + m_theme.padding, glyph.pos_y + pos_y + m_theme.padding, glyph.width,
+                                  glyph.height));
             shader->set("tex_rect", glm::vec4(glyph.sprite.u, glyph.sprite.v, glyph.sprite.w, glyph.sprite.h));
             m_ctx.rect_mesh->draw();
         }
@@ -151,7 +156,9 @@ void editor::draw_cursor(glm::mat4 matrix) {
 
     unsigned cursor_x = m_document.get_pixel_pos(m_cursor);
     if (cursor_x > 0) cursor_x -= 1;
-    shader->set("pos_rect", glm::vec4(cursor_x, m_cursor.y * m_font.line_height(), 1, m_font.line_height()));
+    shader->set("pos_rect",
+                glm::vec4(cursor_x + m_theme.padding, m_cursor.y * m_font.line_height() + m_theme.padding, 1,
+                          m_font.line_height()));
     m_ctx.rect_mesh->draw();
 }
 

@@ -5,7 +5,12 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <imgui.h>
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
+#include "window.hpp"
 #include "renderer.hpp"
+#include "imgui_style.hpp"
 
 renderer *the_renderer;
 
@@ -32,7 +37,15 @@ GLFWwindow *create_window() {
 }
 
 void draw_frame(GLFWwindow *window) {
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
     the_renderer->on_draw_frame();
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
     glfwSwapBuffers(window);
 }
 
@@ -62,6 +75,11 @@ int main() {
     glfwSetMouseButtonCallback(glfw_window, click_cb);
     glfwSetCursorPosCallback(glfw_window, mouse_cb);
 
+    ImGui::CreateContext();
+    ImGui_ImplGlfw_InitForOpenGL(glfw_window, true);
+    ImGui_ImplOpenGL3_Init("#version 100");
+    apply_imgui_style();
+
     window win(glfw_window);
     the_renderer = new renderer(win);
     while (!glfwWindowShouldClose(glfw_window)) {
@@ -69,5 +87,7 @@ int main() {
         glfwPollEvents();
     }
     delete the_renderer;
+    ImGui_ImplGlfw_Shutdown();
+    glfwDestroyWindow(glfw_window);
     glfwTerminate();
 }

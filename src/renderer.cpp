@@ -5,9 +5,7 @@
 #include "renderer.hpp"
 #include "loader.hpp"
 #include "shader_src.hpp"
-#include <glm/ext/matrix_clip_space.hpp>
-#include <iostream>
-
+#include "imgui.h"
 
 const GLfloat rect_vertices[6][4] = {
         {0, 0, 0.0, 0.0},
@@ -31,7 +29,7 @@ float get_scale(GLFWwindow *window) {
 #define FONT R"(/System/Library/Fonts/SFNSMono.ttf)"
 #endif
 
-renderer::renderer(const window &window) : m_window(window) {
+renderer::renderer(window &window) : m_window(window) {
     m_rect_shader = loader::load_shader(SHADER_RECT_VERT, SHADER_RECT_FRAG);
     m_glyph_shader = loader::load_shader(SHADER_RECT_VERT, SHADER_GLYPH_FRAG);
     m_cursor_shader = loader::load_shader(SHADER_RECT_VERT, SHADER_CURSOR_FRAG);
@@ -41,6 +39,8 @@ renderer::renderer(const window &window) : m_window(window) {
     m_font = new font(FONT, (int) (15 * window.get_scale()));
     m_editor = new editor(m_render_context, m_window, *m_font, window.get_scale());
     m_editor->set_focused(true);
+
+    window.set_cursor(GLFW_IBEAM_CURSOR);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -61,6 +61,7 @@ void renderer::on_draw_frame() {
     m_fps_manager.on_frame_begin();
     m_editor->on_draw_frame();
     m_fps_manager.on_frame_end();
+    do_gui();
 }
 
 void renderer::on_char_typed(char32_t chr) {
@@ -77,4 +78,8 @@ void renderer::on_mouse_move() {
 
 void renderer::on_key_press(int key, int mods) {
     m_editor->on_key_press(key, mods);
+}
+
+void renderer::do_gui() {
+    // ImGui::Text("Hello, world!");
 }

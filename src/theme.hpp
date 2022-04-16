@@ -8,6 +8,7 @@
 #include "glm/vec4.hpp"
 
 struct theme {
+    int padding = 16;
     glm::vec4 background_color;
     glm::vec4 cursor_color;
 };

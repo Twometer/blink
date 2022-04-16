@@ -18,7 +18,7 @@
 
 class renderer {
 private:
-    const window &m_window;
+    window &m_window;
 
     render_context m_render_context{};
     fps_manager m_fps_manager{};
@@ -31,7 +31,7 @@ private:
     editor *m_editor;
 
 public:
-    explicit renderer(const window &window);
+    explicit renderer(window &window);
 
     ~renderer();
 
@@ -44,6 +44,9 @@ public:
     void on_mouse_move();
 
     void on_key_press(int key, int mods);
+
+private:
+    void do_gui();
 };
 
 
