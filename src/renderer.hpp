@@ -13,6 +13,7 @@
 #include "document.hpp"
 #include "mesh.hpp"
 #include "fps_manager.hpp"
+#include "selection.hpp"
 
 class renderer {
 private:
@@ -20,12 +21,12 @@ private:
     shader *m_glyph_shader;
     shader *m_cursor_shader;
     font m_font;
-    document m_document{};
     mesh m_rect_mesh;
-    unsigned m_cursor_x = 0;
-    unsigned m_cursor_y = 0;
     fps_manager m_fps_manager{};
     double m_gui_scale = 0;
+    document m_document{};
+    selection m_selection{};
+    cursor_pos m_cursor{};
 
 public:
     explicit renderer(GLFWwindow *window);
@@ -41,7 +42,7 @@ public:
     void on_key_press(int key, int mods);
 
 private:
-    [[nodiscard]] line* current_line() const { return m_document.lines()[m_cursor_y]; }
+    [[nodiscard]] line *current_line() const { return m_document.lines()[m_cursor.y]; }
 
     void normalize_cursor_pos();
 };

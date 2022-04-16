@@ -5,15 +5,27 @@
 #ifndef BLINK_SELECTION_HPP
 #define BLINK_SELECTION_HPP
 
+#include "cursor.hpp"
+
 class selection {
 private:
-    unsigned x0;
-    unsigned y0;
-    unsigned x1;
-    unsigned y1;
+    cursor_pos m_begin{};
+    cursor_pos m_end{};
 
 public:
-    bool contains(unsigned x, unsigned y);
+    [[nodiscard]] bool contains(cursor_pos pos) const;
+
+    void collapse_begin();
+
+    void collapse_end();
+
+    [[nodiscard]] inline const cursor_pos &begin() const { return m_begin; };
+
+    [[nodiscard]] inline const cursor_pos &end() const { return m_end; };
+
+    inline void set_begin(cursor_pos pos) { m_begin = pos; };
+
+    inline void set_end(cursor_pos pos) { m_end = pos; };
 };
 
 
